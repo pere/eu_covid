@@ -24,13 +24,34 @@
     min-height: 300px!important;
 }
 
+.map_popup_control_container {
+    display: none;
+}
+
+.param_title {
+    font-size: 0.9rem;
+    color: #f4ebeb;
+    margin: 1px;
+    padding-left: 8px;
+}
+
+.map_legend_control_container .row {
+    margin-bottom: 9px!important;
+}
+
 .map_legend_control_container {
-    max-height: 80px;
-    min-width: 200px;
-    background-color: #041620!important;
-    padding: 3px!important;
-    border: 1px solid #041620;
+    max-height: 350px;
+    overflow: auto;
     color: white;
+    min-width: 233px;
+    background-color: #415161!important;
+    padding: 3px!important;
+    border: 1px solid #c5d0d7;
+    color: white;
+}
+
+.map_legend_control_container a {
+    margin-left: 9px;
 }
 
 .map_popup_control_container {
@@ -101,9 +122,22 @@ li:hover {
     padding: 0 .75rem;
 }
 
+.lollipop_legend_description {
+    color: white;
+    margin-left: 18px;
+    font-size: 1rem!important;
+    height: 20px;
+    max-width: 85%;
+    float: left;
+}
+
 .sel_param_name,
 #sel_param_region>div.row {
     margin-bottom: 0px!important;
+}
+
+.mapboxgl-ctrl-bottom-right {
+    display: block!important;
 }
 
 #sel_param_region i:hover {
@@ -125,4 +159,23 @@ li:hover {
 .hovered {
     background-color: #ffeb3b!important;
     color: chocolate!important;
+}
+
+.clicked {
+    /* background-color: #ffeb3b!important; */
+    color: chocolate!important;
+}
+
+.tick text,
+.tick line {
+    stroke: white;
+    fill: white
+}
+
+body>nav>div>form>ul.left>li>p {
+    font-size: 1.7rem;
+    margin-top: -15px;
+    /* color: white; */
+    color: white;
+    margin-left: 12px!important;
 }

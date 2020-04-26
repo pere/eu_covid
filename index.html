@@ -42,43 +42,6 @@
             <form>
 
                 <ul class="right zzzhide-on-med-and-down">
-                    <ul id="rank_legend_dropdown" class="rank_legend_dropdown_content dropdown-content">
-                        <li class="main collection-item">
-                            <div class="rank_legend_control">
-                                <div class="rank_legend_control_container">
-
-                                    <div class="matrix_btn row">
-                                        <div class="col s3"><a class="btn-small main_index_val">Main index</a></div>
-                                        <div class="col s3"><a class="btn-small env_index_val">Environmental</a></div>
-                                        <div class="col s2"><a class="btn-small social_index_val">Social</a></div>
-                                        <div class="col s2"><a class="btn-small financial_index_val selected">Financial</a></div>
-                                        <div class="col s2"><a class="btn-small political_index_val">Political</a></div>
-                                    </div>
-
-                                    <svg class="legend_svg"></svg>
-
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-
-
-
-
-                    <li><a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block!important;"><i
-                                class="material-icons">view_module</i></a>
-                    </li>
-
-
-                    <li><a href="#" class="light_mode daylight" style="display: block!important;"><i
-                                class="material-icons light_mede_button">highlight</i></a>
-                    </li>
-
-                    <li>
-                        <a class="modal-trigger" href="#intro_modal"><i
-                                    class="material-icons icon_info">info</i></a>
-
-                    </li>
 
                     <li>
                         <a class="modal-trigger country_modal_trigger" href="#country_modal"><i
@@ -89,7 +52,7 @@
                 </ul>
                 <ul class="left">
                     <li>
-                        <a href="#!" class="jrc-logo"><img src="https://global-surface-water.appspot.com/gsw/newmockup/img/europelogo.png" alt=""></a>
+                        <!-- <a href="#!" class="jrc-logo"><img src="https://global-surface-water.appspot.com/gsw/newmockup/img/europelogo.png" alt=""></a> -->
                         <p class="app-title">EUvsCOVID</p>
                     </li>
                 </ul>
@@ -125,7 +88,7 @@
                         <li>
 
                             <div class="row sel_param_name">
-                                <div class="col s12">test</div>
+                                <div class="col s12">Select first a parameter!</div>
                             </div>
                             <div id="sel_param_region">
 
@@ -172,12 +135,24 @@
     <!-- <div id="wrapper"> -->
     <div id="map"></div>
 
+    <div id='lollipop_wrapper'>
+        <div>
+            <span class="hide_lollipop">  <a href="#!" class="small btn-flat"></a><i class="material-icons icon_lollipop_close">close</i></span>
+        </div>
+        <div class='lollipop_legend_description'>Title</div>
+        <div id="t_chart"></div>
+
+    </div>
+
 
     <script src="./new_app_js_2/attach_ev.js"></script>
     <script>
         var map;
 
-        app.throttle = function(fn, threshhold, scope) {
+        var this_app = {};
+
+
+        this_app.throttle = function(fn, threshhold, scope) {
             threshhold || (threshhold = 250);
             var last,
                 deferTimer;
@@ -199,6 +174,12 @@
                 }
             };
         }
+        this_app.plotted_params = {}
+        this_app.stats_to_param = ['remaining_days', 'model_score', 'ricoverati_con_sintomi', 'terapia_intensiva', 'totale_ospedalizzati',
+            'isolamento_domiciliare', 'totale_positivi', 'variazione_totale_positivi', 'nuovi_positivi',
+            'dimessi_guariti', 'deceduti', 'totale_casi', 'tamponi', 'casi_testati'
+        ];
+
 
 
         function populate_map_popup_control_container(code) {
@@ -310,7 +291,7 @@
 
 
 
-            app.just_region_popup = new mapboxgl.Popup({
+            this_app.just_region_popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: true,
                 className: 'region_map_popup',
@@ -323,28 +304,28 @@
 
                 }
             });
-            app.just_region_popup.addTo(map);
+            this_app.just_region_popup.addTo(map);
 
 
 
-            var _t = model_results.filter(function(d) {
-                return d.code_reg == '13'
-            })[0];
+            // var _t = model_results.filter(function(d) {
+            //     return d.code_reg == '13'
+            //  })[0];
 
             $('.map_legend_control_container,.map_popup_control_container').addClass('mapboxgl-ctrl')
                 //append('<div class="mapboxgl-ctrl mapboxgl-ctrl-group legend_control_container></div>');
-            var html = ''
-            for (var p in _t) {
-                html += '<div>' + p + ' : ' + _t[p] + '</div>';
-            }
-            //html += '</div>'
-            console.log(html)
-            setTimeout(function() {
-                //alert($('.legend_control_container').length)
-                $('.map_popup_control_container').append(html);
+                // var html = ''
+                // for (var p in _t) {
+                //     html += '<div>' + p + ' : ' + _t[p] + '</div>';
+                // }
+                // //html += '</div>'
+                // console.log(html)
+                // setTimeout(function() {
+                //     //alert($('.legend_control_container').length)
+                //     $('.map_popup_control_container').append(html);
 
-                $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
-            }, 800)
+            //     //  $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
+            // }, 300)
 
 
 
@@ -362,8 +343,8 @@
                 var x = e.originalEvent.clientX;
                 var y = e.originalEvent.clientY;
 
-                app.just_region_popup.setLngLat(latlng)
-                app.just_region_popup.setHTML('<div class="country_popup small_popup">' + mouseovered_path._data.den_reg + '</div>')
+                this_app.just_region_popup.setLngLat(latlng)
+                this_app.just_region_popup.setHTML('<div class="country_popup small_popup">' + mouseovered_path._data.den_reg + '</div>')
 
             })
 
@@ -404,6 +385,9 @@
                 })
                 .on('mouseenter', function(d) {
 
+                    $('.map_popup_control_container.mapboxgl-ctrl').show();
+                    $('.map_legend_control_container.mapboxgl-ctrl').hide();
+
                     $('.mapboxgl-popup').show();
                     console.info('mouseenter geo path ' + d.properties.code_reg)
                     mouseovered_path._data = d.properties;
@@ -427,6 +411,9 @@
                 })
                 .on('mouseleave', function(d) {
                     $('.map_popup_control_container').empty();
+
+                    $('.map_popup_control_container.mapboxgl-ctrl').hide();
+                    $('.map_legend_control_container.mapboxgl-ctrl').show();
                     // app.throttle(
                     console.warn('mouseout geo path ' + d.properties.code_reg)
                     var t = '#map path.region.code_' + d.properties.code_reg;
@@ -484,54 +471,85 @@
 
         }
 
-        var this_app = {};
-        this_app.stats_to_param = ['remaining_days', 'model_score', 'ricoverati_con_sintomi', 'terapia_intensiva', 'totale_ospedalizzati',
-            'isolamento_domiciliare', 'totale_positivi', 'variazione_totale_positivi', 'nuovi_positivi',
-            'dimessi_guariti', 'deceduti', 'totale_casi', 'tamponi', 'casi_testati'
-        ];
 
 
-        var params_to_arr_index = []
-        var select_html = '<div class="row select_params_map_container"><div class="input-field s12 col"><select id="param_select">';
+
+        var params_to_arr_index = [];
+        var btn_html = '<div class="param_btn"><div class="row param_title">First select a parameter to symbolize</div>';
+        //var select_html = '<div class="row select_params_map_container"><div class="input-field s12 col"><select id="param_select">';
         var options = '';
         var reduced = model_results.reduce(function(memo, d, i) {
 
             if (i == 0) {
                 var keyNames = Object.keys(d);
                 keyNames.forEach(function(prop, i2) {
-                    if (this_app.stats_to_param.indexOf(prop) !== -1) {
-                        params_to_arr_index.push(prop);
-                        options += '<option value="' + prop + '">' + prop + '</option> ';
+                        if (this_app.stats_to_param.indexOf(prop) !== -1) {
+                            params_to_arr_index.push(prop);
+                            //  options += '<option value="' + prop + '">' + prop + '</option> ';
+                            btn_html += '<div class="row"><a param="' + prop + '" class="waves-effect waves-light btn btn-small">' + prop + '</a></div>';
 
-                        d[prop + '_arr'] = [];
-                        memo.data.push({
-                            prop_name: prop,
-                            arr: [],
-                            arr_data_codes: [],
-                            min_max: {}
-                        }); //,d.prop)
-                    }
+                            d[prop + '_arr'] = [];
+                            memo.data.push({
+                                prop_name: prop,
+                                arr: [],
+                                arr_data_codes: [],
+                                min_max: {}
+                            }); //,d.prop)
+                        }
 
-                })
-                var s = select_html + options + '</select><label>Change parameter to visualize</label></div></div>';
-                //if we want to add to lateral bar
-                //$('.indicators_list .col').append(s)
+                    })
+                    // var s = select_html + options + '</select><label>Change parameter to visualize</label></div></div>';
+                    //if we want to add to lateral bar
+                    //$('.indicators_list .col').append(s)
 
                 setTimeout(function() {
 
-                    $('.map_legend_control_container').append(s);
-                    $('select').formSelect();
+                    btn_html += '</div>'
+                        // $('.map_legend_control_container').append(s);
+                    var color_html = '<div class="color_btn">';
+                    color_html += '<div class="row param_title">You can change the scale color (green by default)</div>';
+                    color_html += '<div class="row"><a color_param="green" class="waves-effect waves-light btn btn-small clicked">Green</a></div>';
+                    color_html += '<div class="row"><a color_param="yellowish" class="waves-effect waves-light btn btn-small">Yellow-red</a></div>';
+                    color_html += '<div class="row"><a color_param="blue" class="waves-effect waves-light btn btn-small">Blue</a></div>';
+                    color_html += '<div class="row"><a color_param="redish" class="waves-effect waves-light btn btn-small">Purple-Red</a></div>';
+                    color_html += '</div>';
+                    $('.map_legend_control_container').append(btn_html + color_html);
+                    $('.map_legend_control_container.mapboxgl-ctrl').show();
+                    //$('.map_legend_control_container.mapboxgl-ctrl').hide();
 
-                    $('.map_legend_control_container select').on('change', function() {
-                        var param = $(this).find('option:selected').attr('value');
-                        app.update_geom_by_model_rank(param);
-                        $('.map_legend_control_container').removeClass('expanded')
-                    })
-                    $('.map_legend_control_container').on('click', function(e) {
-                        console.warn($(e.target))
-                        if ($('.map_legend_control_container').hasClass('expanded') == false) {
-                            $('.map_legend_control_container').addClass('expanded')
+                    $('.map_legend_control_container .param_btn .btn').on('click', function(e) {
+                        if ($(this).hasClass('clicked')) {
+
+                        } else {
+                            $('.map_legend_control_container .param_btn .clicked').removeClass('clicked');
+                            var param = $(this).attr('param');
+                            $(this).addClass('clicked');
+                            $('.map_legend_control_container').animate({
+
+                                scrollTop: $('.color_btn').offset().top + 80
+
+                            }, 500);
+                            this_app.plotted_params['active_param'] = param;
+                            this_app.update_geom_by_model_rank();
+
                         }
+                        //$(this).toggleClass('clicked')
+                    })
+
+                    $('.map_legend_control_container .color_btn .btn').on('click', function(e) {
+                        if ($(this).hasClass('clicked')) {
+
+                        } else {
+
+                            $('.map_legend_control_container .color_btn .clicked').removeClass('clicked');
+                            $(this).addClass('clicked')
+                            var param = $(this).attr('param');
+                            //this_app.plotted_params['active_param'] = param;
+                            this_app.update_geom_by_model_rank();
+                            // this_app.update_geom_by_model_rank(param);
+
+                        }
+                        //$(this).toggleClass('clicked')
                     })
 
                 }, 700)
@@ -551,10 +569,17 @@
 
                     memo.data.filter(function(_d, i3) {
                         if (_d.prop_name == p) {
+                            if (p == 'model_score') {
+                                var val = parseFloat(d[p]).toFixed(3)
+
+                                //var val = d[p]
+                            } else {
+                                var val = d[p]
+                            }
                             memo.data[i3]['arr_data_codes'].push({
                                 code: d.code_reg,
                                 name: d.denominazione_regione,
-                                value: d[p]
+                                value: val
                             })
                             memo.data[i3].arr.push(d[p])
                         }
@@ -570,7 +595,7 @@
             arr_data_codes: [],
             data: []
         });
-        // console.warn(params_to_arr_index)
+        console.warn(reduced)
 
         reduced['data'].forEach(function(d, i) {
             var arr = d.arr;
@@ -581,20 +606,20 @@
             d.min_max.max = max;
             d.min_max.min = min;
         });
-        console.log(reduced)
-            // alert($('.map_legend_control_container select').length)
-            // $('.map_legend_control_container select').on('change', function() {
-            //     alert($(this).find('option:selected').attr('value'))
-            // })
 
-        setTimeout(function() {
-            var param = 'deceduti';
-            app.update_geom_by_model_rank(param);
-        }, 500);
-        setTimeout(function() {
-            var param = 'terapia_intensiva';
-            app.update_geom_by_model_rank(param);
-        }, 500);
+        // alert($('.map_legend_control_container select').length)
+        // $('.map_legend_control_container select').on('change', function() {
+        //     alert($(this).find('option:selected').attr('value'))
+        // })
+
+        // setTimeout(function() {
+        //     var param = 'deceduti';
+        //     app.update_geom_by_model_rank(param);
+        // }, 500);
+        // setTimeout(function() {
+        //     var param = 'terapia_intensiva';
+        //     app.update_geom_by_model_rank(param);
+        // }, 500);
         //         var models_colors_obj = [{
         //     index_code: 'env_index_val',
         //     rank_code: 'rank_env',
@@ -619,15 +644,40 @@
             }
 
         }
-        app.update_geom_by_model_rank = function(param) {
+        this_app.update_geom_by_model_rank = function() {
+                $('#lollipop_wrapper').hide();
                 app_state.initial_state = false;
+                var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
 
                 var _this = reduced.data.filter(function(d) {
                     return d.prop_name == param;
                 })[0];
+                var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
+
+                this_app.plotted_params['active_param'] = param;
+
+                switch (color) {
+                    case 'green':
+                        var c_arr = ['#a5ecd8', '#04956c'];
+                        break;
+
+                    case 'blue':
+                        var c_arr = ['#9de0e8', '#0f2fe2'];
+                        break;
+                    case 'yellowish':
+                        var c_arr = ['#ffeb3b', '#ff5722'];
+                        break;
+                    case 'redish':
+                        var c_arr = ['#e37ff5', '#f30858'];
+                        break;
+
+                    default:
+                        break;
+
+                }
                 this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
                     .interpolate(d3.interpolateHcl)
-                    .range(['#a5ecd8', '#04956c']);
+                    .range(c_arr);
 
                 console.log(_this);
                 var sorted = _this.arr_data_codes.sort(sort_by_value(param));
@@ -640,15 +690,16 @@
 
                 var html = '';
                 sorted.forEach(function(d, i) {
-                    console.warn(d)
+
                     var color = this_app.rankScale(d.value);
-                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div><div class="col s3 i_container"><i class="small material-icons i_star" style="color:white">grade</i><i class="material-icons i_highlight">highlight</i></div></div>';
+                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div><div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div></div>';
+                    //<i class="material-icons i_highlight">highlight</i>
                 });
-                console.log(html);
+
                 $region_append.html(html)
 
                 $('.indiv_region_container').on('mouseover', function(e) {
-                        console.log($(this))
+
                         $(this).addClass('hovered');
                         var code_reg = $(this).attr('code_reg');
                         var t = '#map path.region.code_' + code_reg;
@@ -656,20 +707,44 @@
                             .dispatch('mouseenter');
 
                         populate_map_popup_control_container(code_reg)
-                        if ($(e.target).hasClass('i_highlight')) {
+                            // if ($(e.target).hasClass('i_highlight')) {
 
-                        }
+                        // }
                     })
                     .on('mouseout', function(e) {
-                        console.log($(this))
+                        //console.log($(this))
                         $(this).removeClass('hovered');
                         var code_reg = $(this).attr('code_reg');
                         var t = '#map path.region.code_' + code_reg;
                         d3.select(t)
                             .dispatch('mouseleave');
                     })
+                    .on('click', function(e) {
+
+
+                        if ($(e.target).hasClass('i_clock')) {
+
+
+                            if ($(e.target).hasClass('clicked')) {
+                                //    alert('clicked')
+                                this_app.plotted_params.code_reg = null;
+                                $(e.target).removeClass('clicked');
+                                $('#lollipop_wrapper').hide();
+                            } else {
+                                $('.i_clock.clicked').removeClass('clicked');
+                                var code_reg = $(this).attr('code_reg');
+                                $(e.target).addClass('clicked');
+                                this_app.plotted_params.code_reg = code_reg;
+                                // this_app.plotted_params.active_param=code_reg;
+                                var region_name = $(this).find('.a_name_container').text()
+                                this_app.t_chart(this_app.plotted_params.active_param, code_reg, classif_temp_data, region_name);
+                            }
+
+
+                        }
+                    })
                     //$('#sel_param_region')
-                console.info($('#sel_param_region').html())
+
 
                 var map_paths = d3.selectAll("#map path.region");
                 //alert(map_paths.size())
@@ -807,6 +882,172 @@ prop_name: "deceduti"
         }
         //console.warn(arrs[0].data_param_values[0].arr)
         console.log(classif_temp_data)
+
+
+        this_app.t_chart = function(param, code_reg, data, name) {
+
+            if ($('#t_chart svg').length > 0) {
+                $('#t_chart svg').remove();
+            }
+            $('.lollipop_legend_description').text(this_app.plotted_params.active_param + ' evolution in ' + name)
+
+            var mx_w_h = $('#map').height() / 6;
+            $('#lollipop_wrapper').height(mx_w_h + $('nav').height());
+            var map_w = $('#map').width();
+
+            var diff_h = $('#map').height() - mx_w_h - $('nav').height();
+            var diff_w = map_w - (map_w / 3);
+
+            $('#lollipop_wrapper').css('top', diff_h - 5)
+                .css('width', diff_w + 'px')
+                //half of half map width!!
+                .css('margin-left', (map_w / 8));
+
+            $('#lollipop_wrapper').show();
+            $('#lollipop_wrapper').css('display', 'block').show();
+
+            var margin = {
+                top: 0,
+                right: 5,
+                bottom: 5,
+                left: 5
+            };
+            width = diff_w; // - margin.left - margin.right;
+
+            // append the svg object to the body of the page
+            var t_svg = d3.select("#t_chart")
+                .append("svg")
+                .attr("width", width) // + margin.left + margin.right)
+                .attr("height", width - 35) // + $('nav').height())
+                .append("g")
+                .attr("transform",
+                    "translate(0," + margin.top + ")");
+
+
+            var all_group = classif_temp_data.filter(function(d) {
+                if (d.code_reg == code_reg) {
+                    console.warn(d)
+                    for (var p in d.data_param_values) {
+                        if (d.data_param_values[p].prop == param) {
+                            console.info(d.data_param_values[p])
+                            return d.data_param_values[p]['arr']
+                        }
+                    }
+                }
+            })[0];
+            var _this = all_group.data_param_values.filter(function(d) {
+                return d.prop == 'ricoverati_con_sintomi'
+            })[0];
+            console.warn(_this['arr']);
+
+
+            var formatted_arr = _this['arr'].map(function(d) {
+
+                return {
+                    date: d3.timeParse("%Y-%m-%d")(d.date),
+                    value: d.value
+                }
+
+            })
+            console.log(formatted_arr)
+            var y_array = formatted_arr.map(function(d) {
+
+                return d.value
+
+            });
+            console.log(y_array)
+            var min_y = Math.min.apply(Math, y_array);
+            var max_y = Math.max.apply(Math, y_array);
+            // var time_array = _this['arr'].map(function(d) {
+            //     return d.date
+            // });
+
+
+            // Add X axis --> it is a date format
+            var x = d3.scaleTime()
+                .domain(d3.extent(formatted_arr, function(d) {
+                    return d.date;
+                }))
+                .range([0, width]);
+            t_svg.append("g")
+                //.attr("transform", "translate(0," + height + ")")
+                .attr("transform", "translate(35," + (mx_w_h + 20) + ")")
+                .call(d3.axisBottom(x));
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([min_y, max_y])
+                .range([mx_w_h, 0]);
+            t_svg.append("g")
+                .attr("transform", "translate(35,20)")
+                .call(d3.axisLeft(y));
+
+            // Initialize line with group a
+            var line_initial = t_svg
+                .append('g')
+                .attr("transform", "translate(0,17)")
+                .append("path")
+                .classed('line_path', true)
+                .datum(formatted_arr)
+                .attr("d", d3.line()
+                    .x(function(d) {
+                        return x(d.date) + 35
+                    })
+                    .y(function(d) {
+                        return y(d.value)
+                    })
+                )
+                .attr("stroke-width", 2)
+                .attr("stroke", '#ffc107')
+
+            .style("fill", "none");
+
+            // Initialize dots with group a
+            var dot = t_svg
+                .selectAll('circle')
+                .data(formatted_arr)
+                .enter()
+                .append('circle')
+                .attr("cx", function(d) {
+                    return x(d.date) + 35
+                })
+                .attr("cy", function(d) {
+                    return y(d.value) + 17
+                })
+                .attr("r", 0)
+                .transition()
+                .duration(200)
+                .attr("r", 3)
+                .attr('opacity', .6)
+                .style("fill", "#ff6347")
+
+
+            setTimeout(function() {
+                t_svg.selectAll('.line_path')
+                    .datum(formatted_arr)
+                    .transition()
+                    .duration(1000)
+                    .attr("d", d3.line()
+                        .x(function(d) {
+                            return x(d.date) + 35
+                        })
+                        .y(function(d) {
+                            return y(d.value)
+                        })
+                    )
+                    .attr("stroke-width", 2);
+
+                t_svg.selectAll('circle')
+                    .datum(formatted_arr)
+                    .transition()
+                    .duration(200)
+                    .attr("r", 3)
+                    .attr('opacity', .6)
+
+
+            }, 1500)
+
+        }
     </script>
     <!-- <script src="./new_app_js_2/lollipop.js"></script> -->
     <!-- <script src="./new_app_js_2/bubble.js"></script> -->
