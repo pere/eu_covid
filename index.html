@@ -34,18 +34,69 @@
 </head>
 
 <body>
+    <div id='intro_modal' class="modal">
+        <div class="modal-header">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat right"><i class="material-icons">close</i></a>
+        </div>
+        <div class="modal-content">
+            <div class="left">
+                <div class="row">
+                    <div class="intro_title">What is Model & Scan COVID Trends (MSCT)?</div>
 
+                    <p>MSCT is able to model COVID-19 epidemic and predict the end of the most severe phase of the epidemic for each Italian Region. MSCT is constantly adjusting the estimations by incorporating daily updates in the model, and the outcomes
+                        are presented in this app
+                    </p>
+
+                    <p>First select what kind of data you want to visualize</p>
+                    Some data is the result of running the MSCT module (e.g: Model Score, Remaining days), others is a summary from public institutions data
+                    </p>
+
+                </div>
+
+                <div class="intro_title">How?</div>
+
+                We calculated a derived variable called Epidemic Indicator, given by the sum of the number of patients in Intensive Care Unit (ICU) with the number of daily deaths. We noticed that this variable follows a regular descending trend, after the peak registered
+                on April 1st. In fact, it is an easily measurable information which doesn't suffer from sampling methodology or weekly fluctuations. It is certainly not perfect since it can also be prone to underestimation, mostly during the acute peak
+                of the crisis where the health system was stressed and hospitals saturated. But after that critical phase, the Epidemic Indicator should reflect pretty well the number of patients that are affected most severely by the virus</p>
+                <p> The main assumption of our analysis is that Epidemic Indicator can be a reliable variable for estimating the current epidemic progression and for modeling future trends. In fact, after April 1st this variable is decreasing at a constant
+                    rate. For this reason, we can model the future trend of the Epidemic Indicator using Linear Regression, one of the most popular classical Machine Learning algorithms for supervised learning. This algorithm is relatively easy to implement
+                    and works well when the relationship between covariates and response variable is known to be linear (in our case: Epidemic Indicator VS time). A known disadvantage is that Linear Regression over simplifies many real world problems.
+                    We separated the dataset in 20 regional subsets</p>
+                <p>Then, we created and trained a Linear Regression Model for each region. Trained models are then used for predicting the end of the epidemic, expressed by the number of days remaining before Epidemic Indicator is expected to be 0. Of course,
+                    not all regional models performed the same. Some regions have clear recovering trends (i.e. Lombardia), while others seem to have a less linear evolution (i.e. Lombardia). For this reason, every model also returns a performance score,
+                    the coefficient of determination R² of the prediction. An R² of 1 indicates that the regression predictions perfectly fit the data. therefore the closer the value gets to 1, the more we can trust our model and its predictions</p>
+
+            </div>
+
+            <div class="intro_title">Who?</div>
+            <p>Pere Roca Ristol, GIS and web-mapping development (JRC, Ipra)</p>
+            <p>Andrea Amparore, modelling MSCT (World Food Programme, Rome)</p>
+
+
+
+        </div>
+
+    </div>
     <nav>
         <div class="nav-wrapper">
 
 
             <form>
 
-                <ul class="right zzzhide-on-med-and-down">
+                <ul class="right hide-on-med-and-down">
 
                     <li>
-                        <a class="modal-trigger country_modal_trigger" href="#country_modal"><i
+                        <a class="modal-trigger" href="#country_modal"><i
                                     class="material-icons country_icon_info">info</i></a>
+
+                    </li>
+                    <li>
+                        <a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block!important;"><i
+                        class="material-icons">view_module</i></a>
+                    </li>
+                    <li>
+                        <a class="modal-trigger" href="#intro_modal"><i
+                            class="material-icons icon_info">info</i></a>
 
                     </li>
 
@@ -145,7 +196,7 @@
     </div>
 
 
-    <script src="./new_app_js_2/attach_ev.js"></script>
+    <script src="./new_app_js_2/covid_attach_ev.js"></script>
     <script>
         var map;
 
@@ -201,7 +252,65 @@
 
             $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
         }
+        map = new mapboxgl.Map({
+            container: 'map', // container id
+            //style: 'mapbox://styles/mapbox/streets-v8',
+            style: {
+                "version": 8,
+                "sources": {
+                    "geoserver": {
+                        "type": "vector",
+                        "tiles": [
+                            "https://geospatial.jrc.ec.europa.eu/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=hotspots:gaul_0_simplified&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}"
+                        ],
+                    }
+                },
+                "layers": [{
+                    "id": "gaul_0_simple",
+                    "source": "geoserver",
+                    "source-layer": "gaul_0_simplified",
+                    "type": "fill",
+                    // "minzoom": 4,
+                    // "maxzoom": 6,
+                    'paint': {
+                        "fill-color": "#a2a7ab",
+                        "fill-outline-color": "#87989c",
+                        "fill-opacity": 0.9
 
+                    }
+                }]
+            },
+            center: [11.07, 42],
+
+
+            //center: [141.15448379999998, 39.702053　],
+            zoom: 4.8,
+
+            attributionControl: false
+        });
+        $(".mapboxgl-map").css('background-color', "#a1b4c1")
+
+        map.on('load', function() {
+            map.addControl(new mapboxgl.NavigationControl());
+
+            // map.addSource("carto", {
+            //     "type": "raster",
+            //     "tiles": ["https://basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png"],
+            //     'tileSize': 240
+            // });
+
+            var carto_layer = {
+                    'id': 'carto_layer',
+                    'type': 'raster',
+                    'source': 'carto'
+
+                }
+                //map.addLayer(carto_layer)
+                //holding info on mouseover geo
+
+
+
+        })
 
         d3.json("./data/regioni.json").then(mapDraw);
 
@@ -211,46 +320,8 @@
 
 
 
-            map = new mapboxgl.Map({
-                container: 'map', // container id
-                //style: 'mapbox://styles/mapbox/streets-v8',
-                style: {
-                    "version": 8,
-                    "sources": {
-                        "geoserver": {
-                            "type": "vector",
-                            "tiles": [
-                                "https://geospatial.jrc.ec.europa.eu/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=hotspots:gaul_0_simplified&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}"
-                            ],
-                        }
-                    },
-                    "layers": [{
-                        "id": "gaul_0_simple",
-                        "source": "geoserver",
-                        "source-layer": "gaul_0_simplified",
-                        "type": "fill",
-                        // "minzoom": 4,
-                        // "maxzoom": 6,
-                        'paint': {
-                            "fill-color": "#a2a7ab",
-                            "fill-outline-color": "#87989c",
-                            "fill-opacity": 0.9
-
-                        }
-                    }]
-                },
-                center: [11.07, 42],
 
 
-                //center: [141.15448379999998, 39.702053　],
-                zoom: 4.8,
-
-                attributionControl: false
-            });
-            $(".mapboxgl-map").css('background-color', "#a1b4c1")
-            map.addControl(new mapboxgl.NavigationControl());
-
-            //holding info on mouseover geo
             class map_legend_control2 {
                 onAdd(map) {
                     this.map = map;
@@ -286,11 +357,6 @@
             }
             var legend_control_ctrl = new map_legend_control();
             map.addControl(legend_control_ctrl, 'bottom-right');
-
-
-
-
-
             this_app.just_region_popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: true,
@@ -459,15 +525,7 @@
             })
 
 
-
             update();
-
-
-
-
-
-
-
 
         }
 
@@ -535,6 +593,8 @@
                         }
                         //$(this).toggleClass('clicked')
                     })
+
+
 
                     $('.map_legend_control_container .color_btn .btn').on('click', function(e) {
                         if ($(this).hasClass('clicked')) {
