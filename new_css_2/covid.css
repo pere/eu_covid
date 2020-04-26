@@ -127,7 +127,7 @@ li:hover {
     margin-left: 18px;
     font-size: 1rem!important;
     height: 20px;
-    max-width: 85%;
+    max-width: 85%!important;
     float: left;
 }
 
@@ -166,11 +166,29 @@ li:hover {
     color: chocolate!important;
 }
 
+.x_axis path,
+.x_axis line,
+.y_axis path,
+.y_axis line {
+    stroke: rgb(242, 239, 239);
+}
+
+
+/* .tick text,
+.tick line {
+    stroke: rgb(247, 239, 239);
+    font-weight: 200;
+    fill: rgb(242, 239, 239)
+}
+
+.tick text,
+.tick line,
 .tick text,
 .tick line {
-    stroke: white;
-    fill: white
-}
+    stroke: rgb(247, 239, 239);
+    font-weight: 200;
+    fill: rgb(242, 239, 239)
+} */
 
 body>nav>div>form>ul.left>li>p {
     font-size: 1.7rem;

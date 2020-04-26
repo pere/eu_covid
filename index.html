@@ -970,17 +970,32 @@ prop_name: "deceduti"
                 }))
                 .range([0, width]);
             t_svg.append("g")
+                .attr("width", width - 35) // + margin.left + margin.right)
                 //.attr("transform", "translate(0," + height + ")")
                 .attr("transform", "translate(35," + (mx_w_h + 20) + ")")
+                .attr("class", "x_axis")
                 .call(d3.axisBottom(x));
+            t_svg.selectAll(".x_axis text")
+                .attr(
+                    'fill', "rgb(242, 239, 239)")
+                .attr(
+                    'font-weight', 'lighter')
 
             // Add Y axis
             var y = d3.scaleLinear()
                 .domain([min_y, max_y])
                 .range([mx_w_h, 0]);
             t_svg.append("g")
+                .attr("class", "y_axis")
                 .attr("transform", "translate(35,20)")
-                .call(d3.axisLeft(y));
+                .call(d3.axisLeft(y).ticks(5))
+
+            t_svg.selectAll(".y_axis text")
+                .attr(
+                    'fill', "rgb(242, 239, 239)")
+                .attr(
+                    'font-weight', 'lighter')
+
 
             // Initialize line with group a
             var line_initial = t_svg
