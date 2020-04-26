@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <title>Model & Scan COVID Trends (MSCT)</title>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="./new_css_2/extra_css.css">
+    <link rel="stylesheet" href="./new_css_2/media.css">
+
+
+    <script src="./js/jquery.js"></script>
+
+    <script src="./js/materialize_v1.js"></script>
+
+    <link rel="stylesheet" href="./new_css_2/covid.css">
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./new_css_2/extra.css">
+
+    <script src='//unpkg.com/d3@5.0.0/dist/d3.min.js'></script>
+    <script src='./data/model_results.js'></script>
+    <script src='./data/dati_regioni.js'></script>
+    <script src='./data/classif_temp_data.js'></script>
+
+    <script src='./js/d3-selection-multi.min.js'></script>
+    <script src="./js/topojson.v1.min.js"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.js'></script>
+    <script src="./new_app_js_2/helpers.js"></script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div id='intro_modal' class="modal">
+        <div class="modal-header">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat right"><i class="material-icons">close</i></a>
+        </div>
+        <div class="modal-content">
+            <div class="left">
+                <div class="row">
+                    <div class="intro_title">What is Model & Scan COVID Trends (MSCT)?</div>
+
+                    <p>MSCT is able to model COVID-19 epidemic and predict the end of the most severe phase of the epidemic for each Italian Region. MSCT is constantly adjusting the estimations by incorporating daily updates in the model, and the outcomes
+                        are presented in this app
+                    </p>
+
+                    <p>First select what kind of data you want to visualize</p>
+                    Some data is the result of running the MSCT module (e.g: Model Score, Remaining days), others is a summary from public institutions data
+                    </p>
+
+                </div>
+
+                <div class="intro_title">How?</div>
+
+                We calculated a derived variable called Epidemic Indicator, given by the sum of the number of patients in Intensive Care Unit (ICU) with the number of daily deaths. We noticed that this variable follows a regular descending trend, after the peak registered
+                on April 1st. In fact, it is an easily measurable information which doesn't suffer from sampling methodology or weekly fluctuations. It is certainly not perfect since it can also be prone to underestimation, mostly during the acute peak
+                of the crisis where the health system was stressed and hospitals saturated. But after that critical phase, the Epidemic Indicator should reflect pretty well the number of patients that are affected most severely by the virus</p>
+                <p> The main assumption of our analysis is that Epidemic Indicator can be a reliable variable for estimating the current epidemic progression and for modeling future trends. In fact, after April 1st this variable is decreasing at a constant
+                    rate. For this reason, we can model the future trend of the Epidemic Indicator using Linear Regression, one of the most popular classical Machine Learning algorithms for supervised learning. This algorithm is relatively easy to implement
+                    and works well when the relationship between covariates and response variable is known to be linear (in our case: Epidemic Indicator VS time). A known disadvantage is that Linear Regression over simplifies many real world problems.
+                    We separated the dataset in 20 regional subsets</p>
+                <p>Then, we created and trained a Linear Regression Model for each region. Trained models are then used for predicting the end of the epidemic, expressed by the number of days remaining before Epidemic Indicator is expected to be 0. Of course,
+                    not all regional models performed the same. Some regions have clear recovering trends (i.e. Lombardia), while others seem to have a less linear evolution (i.e. Lombardia). For this reason, every model also returns a performance score,
+                    the coefficient of determination R² of the prediction. An R² of 1 indicates that the regression predictions perfectly fit the data. therefore the closer the value gets to 1, the more we can trust our model and its predictions</p>
+                More technical information about the model can be found at <a href="https://github.com/Andrampa/covid_analysis/blob/master/Modeling_COVID19_epidemic_regional_breakdown.ipynb" target="_blank">this link</a>
+
+            </div>
+
+            <div class="intro_title">Who?</div>
+            <p>Pere Roca Ristol, GIS and web-mapping development (JRC, Ipra)</p>
+            <p>Andrea Amparore, modelling MSCT (World Food Programme, Rome)</p>
+
+
+
+        </div>
+
+    </div>
+    <nav>
+        <div class="nav-wrapper">
+
+
+            <form>
+
+                <ul class="right zzhide-on-med-and-down">
+
+
+                    <li>
+                        <a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block!important;"><i
+                        class="material-icons">view_module</i></a>
+                    </li>
+                    <li>
+                        <a class="modal-trigger" href="#intro_modal"><i
+                            class="material-icons icon_info">info</i></a>
+
+                    </li>
+
+                </ul>
+                <ul class="left">
+                    <li>
+
+                        <p class="app-title">Model & Scan COVID Trends (MSCT)</p>
+                    </li>
+                </ul>
+
+
+            </form>
+        </div>
+    </nav>
+    <ul id="slide-out" class="sidenav">
+        <ul class="collapsible">
+
+            <li class='indicators_li'>
+                <div class="card horizontal collapsible-header indicators">
+                    <div class="card-image">
+
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content">
+                            <span class="card-title card-title_country">Models data</span>
+                            <p class="country_name_header"></p>
+                            <div><i onclick="window.print()" class="material-icons pdf_print">picture_as_pdf</i></div>
+                            <div><i class="material-icons csv_export_all">cloud_download</i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible-body">
+
+
+                    <!-- <h3 class="subheader">INDICATORS</h3> -->
+                    <ul class="list regions_list">
+
+                        <li>
+
+                            <div class="row sel_param_name">
+                                <div class="col s12">Select first a parameter!</div>
+                            </div>
+                            <div id="sel_param_region">
+
+
+
+
+                            </div>
+                        </li>
+                    </ul>
+
+                </div>
+            </li>
+
+
+            <li class='province_li main_li'>
+                <div class="card horizontal collapsible-header province">
+                    <div class="card-image">
+
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content">
+                            <span class="card-title card-title_povince">Province data</span>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible-body">
+
+                    <div class="row">
+                        <div class="col s12">At province level, only parameter <b>total cases (current + recovered + deaths)</b> is available</div>
+
+                        <div class="col s12"><a href="#!" class="modal-close waves-effect waves-green btn-small left plot_prov">Map it!<i class="material-icons">public</i></a></div>
+                    </div>
+
+                </div>
+
+            </li>
+
+        </ul>
+    </ul>
+    <!-- <div id="wrapper"> -->
+    <div id="map"></div>
+
+    <div id='lollipop_wrapper'>
+        <div>
+            <span class="hide_lollipop">  <a href="#!" class="small btn-flat"></a><i class="material-icons icon_lollipop_close">close</i></span>
+        </div>
+        <div class='lollipop_legend_description'>Title</div>
+        <div id="t_chart"></div>
+
+    </div>
+
+
+    <script src="./new_app_js_2/covid_attach_ev.js"></script>
+    <script>
+        function get_p_name(prop) {
+
+            switch (prop) {
+
+
+                case 'remaining_days':
+                    var txt = 'Model days prediction';
+                    break;
+                case 'model_score':
+                    var txt = 'Model score (0 to 1)';
+                    break;
+                case 'ricoverati_con_sintomi':
+                    var txt = 'Hospitalized with symptoms';
+                    break;
+                case 'terapia_intensiva':
+                    var txt = 'Intensive Care';
+                    break;
+                case 'totale_ospedalizzati':
+                    var txt = 'Total hospitalized';
+                    break;
+                case 'isolamento_domiciliare':
+                    var txt = 'Self-quarantine at home';
+                    break;
+                case 'totale_positivi':
+                    var txt = 'Total positive cases (currently positive)';
+                    break;
+                case 'variazione_totale_positivi':
+                    var txt = 'total variation of positive cases';
+                    break;
+                case 'nuovi_positivi':
+                    var txt = 'New positive cases';
+                    break;
+
+                case 'dimessi_guariti':
+                    var txt = 'Recovered Dismissed from Hospital';
+                    break;
+                case 'deceduti':
+                    var txt = 'Deaths';
+                    break;
+                case 'totale_casi':
+                    var txt = 'current infected+recovered+deaths';
+                    break;
+                case 'tamponi':
+                    var txt = 'Number of tests';
+                    break;
+                case 'casi_testati':
+                    var txt = 'Number of people tested';
+                    break;
+                default:
+                    var txt = ''
+                    break;
+            }
+            return txt;
+        }
+
+        function projectPoint(lon, lat) {
+            var point = map.project(new mapboxgl.LngLat(lon, lat));
+            this.stream.point(point.x, point.y);
+        }
+
+        var transform = d3.geoTransform({
+            point: projectPoint
+        });
+        var map;
+
+        var this_app = {
+            provinces: false
+        };
+
+
+        this_app.throttle = function(fn, threshhold, scope) {
+            threshhold || (threshhold = 250);
+            var last,
+                deferTimer;
+            return function() {
+                var context = scope || this;
+
+                var now = +new Date,
+                    args = arguments;
+                if (last && now < last + threshhold) {
+                    // hold on to it
+                    clearTimeout(deferTimer);
+                    deferTimer = setTimeout(function() {
+                        last = now;
+                        fn.apply(context, args);
+                    }, threshhold);
+                } else {
+                    last = now;
+                    fn.apply(context, args);
+                }
+            };
+        }
+        this_app.plotted_params = {}
+        this_app.stats_to_param = ['remaining_days', 'model_score', 'ricoverati_con_sintomi', 'terapia_intensiva', 'totale_ospedalizzati',
+            'isolamento_domiciliare', 'totale_positivi', 'variazione_totale_positivi', 'nuovi_positivi',
+            'dimessi_guariti', 'deceduti', 'totale_casi', 'tamponi', 'casi_testati'
+        ];
+
+
+
+        function populate_map_popup_control_container(code) {
+
+
+            var _t = model_results.filter(function(_d) {
+                return _d.code_reg == code
+            })[0];
+
+            var html = '<div class="region_name">' + _t.region_name + '</div>';
+            for (var p in _t) {
+                if (this_app.stats_to_param.indexOf(p) !== -1) {
+
+                    if (p == 'model_score') {
+                        var val = parseFloat(_t[p]).toFixed(3)
+                    } else {
+                        var val = _t[p];
+                    }
+                    html += '<div class="row"><div class="col s8">' + get_p_name(p) + ' </div><div class="col s4"> ' + val + '</div></div>';
+                }
+            }
+
+
+            //alert($('.legend_control_container').length)
+            $('.map_popup_control_container').append(html);
+
+            $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
+
+
+        }
+        map = new mapboxgl.Map({
+            container: 'map', // container id
+            //style: 'mapbox://styles/mapbox/streets-v8',
+            style: {
+                "version": 8,
+                "sources": {
+                    "geoserver": {
+                        "type": "vector",
+                        "tiles": [
+                            "https://geospatial.jrc.ec.europa.eu/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=hotspots:gaul_0_simplified&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}"
+                        ],
+                    }
+                },
+                "layers": [{
+                    "id": "gaul_0_simple",
+                    "source": "geoserver",
+                    "source-layer": "gaul_0_simplified",
+                    "type": "fill",
+                    // "minzoom": 4,
+                    // "maxzoom": 6,
+                    'paint': {
+                        "fill-color": "#a2a7ab",
+                        "fill-outline-color": "#87989c",
+                        "fill-opacity": 0.9
+
+                    }
+                }]
+            },
+            center: [11.07, 42],
+
+
+            //center: [141.15448379999998, 39.702053　],
+            zoom: 4.8,
+
+            attributionControl: false
+        });
+        $(".mapboxgl-map").css('background-color', "#a1b4c1")
+
+        map.on('load', function() {
+            map.addControl(new mapboxgl.NavigationControl());
+
+            // map.addSource("carto", {
+            //     "type": "raster",
+            //     "tiles": ["https://basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png"],
+            //     'tileSize': 240
+            // });
+
+            var carto_layer = {
+                    'id': 'carto_layer',
+                    'type': 'raster',
+                    'source': 'carto'
+
+                }
+                //map.addLayer(carto_layer)
+                //holding info on mouseover geo
+
+
+
+        })
+
+        //d3.json("./data/covid_geo_province.js").then
+        d3.json("./data/regioni.json").then(mapDraw);
+
+
+        function mapDraw(geojson) {
+
+            class map_legend_control2 {
+                onAdd(map) {
+                    this.map = map;
+                    this.container = document.createElement('div');
+                    //this.container.className = 'click_country_control_container';
+                    this.container.className = 'map_popup_control_container';
+
+                    return this.container;
+                }
+                onRemove() {
+                    this.container.parentNode.removeChild(this.container);
+                    this.map = undefined;
+                }
+            }
+            var map_popup_control_container_ctrl = new map_legend_control2();
+            map.addControl(map_popup_control_container_ctrl, 'bottom-right');
+
+
+            //holding user select list
+            class map_legend_control {
+                onAdd(map) {
+                    this.map = map;
+                    this.container = document.createElement('div');
+                    //this.container.className = 'click_country_control_container';
+                    this.container.className = 'map_legend_control_container';
+
+                    return this.container;
+                }
+                onRemove() {
+                    this.container.parentNode.removeChild(this.container);
+                    this.map = undefined;
+                }
+            }
+            var legend_control_ctrl = new map_legend_control();
+            map.addControl(legend_control_ctrl, 'bottom-right');
+            this_app.just_region_popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: true,
+                className: 'region_map_popup',
+                //offset: [20, -20]
+                offset: {
+                    'bottom': [0, -20],
+                    'top': [0, 15],
+                    'top-left': [0, 0], //[linearOffset, (markerHeight - markerRadius - linearOffset) * -1],
+                    'top-right': [0, 0], //[-linearOffset, (markerHeight - markerRadius - linearOffset) * -1],
+
+                }
+            });
+            this_app.just_region_popup.addTo(map);
+
+
+
+            // var _t = model_results.filter(function(d) {
+            //     return d.code_reg == '13'
+            //  })[0];
+
+            $('.map_legend_control_container,.map_popup_control_container').addClass('mapboxgl-ctrl')
+
+
+            map.on("mousemove", function(e) {
+
+                if (!mouseovered_path._data) {
+
+                    console.warn('no mouseovered_path data')
+                    return false;
+                }
+
+
+                var latlng = e.lngLat;
+                var x = e.originalEvent.clientX;
+                var y = e.originalEvent.clientY;
+
+                this_app.just_region_popup.setLngLat(latlng)
+                this_app.just_region_popup.setHTML('<div class="country_popup small_popup">' + mouseovered_path._data.den_reg + '</div>')
+
+            })
+
+            //    create_geom()
+
+
+            function projectPoint(lon, lat) {
+                var point = map.project(new mapboxgl.LngLat(lon, lat));
+                this.stream.point(point.x, point.y);
+            }
+
+            var container = map.getCanvasContainer();
+            var transform = d3.geoTransform({
+                point: projectPoint
+            });
+            var svg = d3.select(container).append("svg");
+
+            var path = d3.geoPath().projection(transform);
+
+            //  console.log(covid_geo_province[0])
+            /*
+            "code_reg": 13,
+        "name_reg": "Abruzzo",
+        "code_prov": 69,
+        "name_prov": "Chieti",
+        "sigla_provincia": "CH",
+        */
+            console.log(geojson.features)
+            var featureElement = svg.selectAll("path.region")
+                .data(geojson.features)
+                .enter()
+                .append("path")
+                // .classed('region', true)
+                .attr('class', function(d) {
+                    return 'region code_' + d.properties.code_reg;
+                })
+                .attrs(app.initial_country_style)
+                .attr("code", function(d) {
+
+                    return d.properties.code_reg;
+                })
+                .on('click', function(d) {
+                    console.log(d)
+                    if (this_app.provinces == true)
+                        return false
+
+                    var path_name = d.properties.den_reg;
+
+
+                })
+                .on('mouseenter', function(d) {
+                    if (this_app.provinces == false) {
+                        //return false
+                        $('.map_popup_control_container.mapboxgl-ctrl').show();
+                        $('.map_legend_control_container.mapboxgl-ctrl').hide();
+
+                        $('.mapboxgl-popup').show();
+                        console.info('mouseenter geo path ' + d.properties.code_reg)
+                        mouseovered_path._data = d.properties;
+                        mouseovered_path.code = d.properties.code_reg;
+                        var t = '#map path.region.code_' + d.properties.code_reg;
+
+                        app.mouseover_prev_color = d3.select(t).attr('fill');
+                        app.mouseover_prev_opacity = d3.select(t).attr('opacity');
+                        console.info(d3.selectAll('.region.code_' + d.properties.code_reg))
+                        d3.selectAll(t)
+                            .attr('fill', '#9acd32')
+                            // .transition().delay(50)
+                            .attr('fill', '#ffeb3b')
+                            .attr('opacity', .8)
+
+                        populate_map_popup_control_container(d.properties.code_reg, d)
+                    }
+
+
+
+                })
+                .on('mouseleave', function(d) {
+                    if (this_app.provinces == true)
+                        return false
+
+                    $('.map_popup_control_container').empty();
+
+                    $('.map_popup_control_container.mapboxgl-ctrl').hide();
+                    $('.map_legend_control_container.mapboxgl-ctrl').show();
+                    // app.throttle(
+                    console.warn('mouseout geo path ' + d.properties.code_reg)
+                    var t = '#map path.region.code_' + d.properties.code_reg;
+                    if (app_state.initial_state == true) {
+                        d3.select(t)
+                            // .transition().delay(100)
+                            //.attr('fill', app.mouseover_prev_color)
+                            //from initial_no_fill_country_style
+                            .attr('fill', 'black')
+                            //.attr('opacity', app.mouseover_prev_opacity)
+                            .attr('opacity', 0.4);
+                    } else {
+                        d3.select(t)
+                            //  .transition().delay(100)
+                            .attr('fill', app.mouseover_prev_color)
+                            //.attr('opacity', app.mouseover_prev_opacity)
+                            .attr('opacity', app.mouseover_prev_opacity);
+
+                    }
+
+
+                    $('.mapboxgl-popup').hide();
+                });
+
+            //  console.info(d3.select(container).select("svg"))
+
+            app.update = function() {
+                console.warn('updateing geom')
+                    //featureElement.attr("d", path)
+                mouseovered_path.code = null;
+                if (this_app.provinces == false) {
+                    console.log('prov false')
+                    featureElement.attr("d", path)
+                        //.attr("opacity", 1);
+                        //.attr('opacity', 1)
+                    svg.selectAll("path.province").attr("opacity", 0);
+                }
+                //alert(provinceElement.size())
+                if (this_app.provinces == true) {
+                    provinceElement = svg.selectAll("path.province")
+                    provinceElement.attr("d", path)
+                    provinceElement.attr("opacity", 0.6);
+                    //.attr('opacity', 1)
+                    featureElement.attr("opacity", 0);
+                }
+
+            }
+
+            //
+            map.on("viewreset", app.update());
+            map.on("movestart", function() {
+                svg.classed("hidden", true);
+            });
+            map.on("rotate", function() {
+                svg.classed("hidden", true);
+            });
+            map.on("moveend", function() {
+                app.update();
+                svg.classed("hidden", false);
+            })
+
+
+            app.update();
+
+        }
+
+
+
+
+        var params_to_arr_index = [];
+        var btn_html = '<div class="param_btn"><div class="row param_title">First select a parameter to symbolize</div>';
+        //var select_html = '<div class="row select_params_map_container"><div class="input-field s12 col"><select id="param_select">';
+        var options = '';
+        var reduced = model_results.reduce(function(memo, d, i) {
+
+            if (i == 0) {
+                var keyNames = Object.keys(d);
+                keyNames.forEach(function(prop, i2) {
+                        if (this_app.stats_to_param.indexOf(prop) !== -1) {
+                            params_to_arr_index.push(prop);
+                            //  options += '<option value="' + prop + '">' + prop + '</option> ';
+
+                            btn_html += '<div class="row"><a param="' + prop + '" class="waves-effect waves-light btn btn-small">' + get_p_name(prop) + '</a></div>';
+
+                            d[prop + '_arr'] = [];
+                            memo.data.push({
+                                prop_name: prop,
+                                arr: [],
+                                arr_data_codes: [],
+                                min_max: {}
+                            }); //,d.prop)
+                        }
+
+                    })
+                    // var s = select_html + options + '</select><label>Change parameter to visualize</label></div></div>';
+                    //if we want to add to lateral bar
+                    //$('.indicators_list .col').append(s)
+
+                setTimeout(function() {
+
+                    btn_html += '</div>'
+                        // $('.map_legend_control_container').append(s);
+                    var color_html = '<div class="color_btn">';
+                    color_html += '<div class="row param_title">You can change the scale color</div>';
+                    color_html += '<div class="row"><a color_param="green" class="waves-effect waves-light btn btn-small clicked">Green</a></div>';
+                    color_html += '<div class="row"><a color_param="yellowish" class="waves-effect waves-light btn btn-small">Yellow-red</a></div>';
+                    color_html += '<div class="row"><a color_param="blue" class="waves-effect waves-light btn btn-small">Blue</a></div>';
+                    color_html += '<div class="row"><a color_param="redish" class="waves-effect waves-light btn btn-small">Purple-Red</a></div>';
+                    color_html += '</div>';
+                    $('.map_legend_control_container').append(btn_html + color_html);
+                    $('.map_legend_control_container.mapboxgl-ctrl').show();
+                    //$('.map_legend_control_container.mapboxgl-ctrl').hide();
+
+                    $('.map_legend_control_container .param_btn .btn').on('click', function(e) {
+
+
+                        if ($(this).hasClass('clicked')) {
+
+                        } else {
+                            $('.map_legend_control_container .param_btn .clicked').removeClass('clicked');
+                            var param = $(this).attr('param');
+                            $(this).addClass('clicked');
+                            $('.map_legend_control_container').animate({
+
+                                scrollTop: $('.color_btn').offset().top + 80
+
+                            }, 500);
+                            this_app.plotted_params['active_param'] = param;
+                            this_app.update_geom_by_model_rank();
+
+                        }
+                        //$(this).toggleClass('clicked')
+                    })
+
+
+
+                    $('.map_legend_control_container .color_btn .btn').on('click', function(e) {
+                        if ($(this).hasClass('clicked')) {
+
+                        } else {
+
+                            $('.map_legend_control_container .color_btn .clicked').removeClass('clicked');
+                            $(this).addClass('clicked')
+                            var param = $(this).attr('param');
+                            //this_app.plotted_params['active_param'] = param;
+                            this_app.update_geom_by_model_rank();
+                            // this_app.update_geom_by_model_rank(param);
+
+                        }
+                        //$(this).toggleClass('clicked')
+                    })
+
+                }, 700)
+
+            }
+            //  console.warn(memo.data)
+
+            for (var p in d) {
+                if (p == 'code_reg') {
+                    memo.codes.push(d[p]);
+                }
+                if (p == 'denominazione_regione') {
+                    memo.region_names.push(d[p]);
+                }
+
+                if (params_to_arr_index.indexOf(p) !== -1) {
+
+                    memo.data.filter(function(_d, i3) {
+                        if (_d.prop_name == p) {
+                            if (p == 'model_score') {
+                                var val = parseFloat(d[p]).toFixed(3)
+
+                                //var val = d[p]
+                            } else {
+                                var val = d[p]
+                            }
+                            memo.data[i3]['arr_data_codes'].push({
+                                code: d.code_reg,
+                                name: d.denominazione_regione,
+                                value: val
+                            })
+                            memo.data[i3].arr.push(d[p])
+                        }
+                    })
+
+                }
+            }
+            return memo
+
+        }, {
+            codes: [],
+            region_names: [],
+            arr_data_codes: [],
+            data: []
+        });
+        console.warn(reduced)
+
+        reduced['data'].forEach(function(d, i) {
+            var arr = d.arr;
+
+            var max = Math.max.apply(Math, d.arr);
+
+            var min = Math.min.apply(Math, d.arr);
+            d.min_max.max = max;
+            d.min_max.min = min;
+        });
+
+
+
+        function sort_by_value(param) {
+
+            return function(a, b) {
+
+                //  console.info(a.data[param])  //2,3,1,1...
+                return a.value < b.value ? 1 : -1;
+            }
+
+        }
+        this_app.update_geom_by_model_rank = function() {
+
+            $('#lollipop_wrapper').hide();
+            app_state.initial_state = false;
+            this_app.provinces = false;
+            //d3.selectAll("path.province").attr("opacity", 0);
+
+            app.update();
+            $('.plot_prov').removeClass('clicked')
+            var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
+
+            var _this = reduced.data.filter(function(d) {
+                return d.prop_name == param;
+            })[0];
+
+            var _this_model_score = reduced.data.filter(function(d) {
+                return d.prop_name == 'model_score';
+            })[0];
+            var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
+
+            this_app.plotted_params['active_param'] = param;
+
+            switch (color) {
+                case 'green':
+                    var c_arr = ['#a5ecd8', '#04956c'];
+                    break;
+
+                case 'blue':
+                    var c_arr = ['#9de0e8', '#0f2fe2'];
+                    break;
+                case 'yellowish':
+                    var c_arr = ['#ffeb3b', '#ff5722'];
+                    break;
+                case 'redish':
+                    var c_arr = ['#e37ff5', '#f30858'];
+                    break;
+
+                default:
+                    break;
+
+            }
+            this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
+                .interpolate(d3.interpolateHcl)
+                .range(c_arr);
+
+            console.log(_this);
+            var sorted = _this.arr_data_codes.sort(sort_by_value(param));
+            console.log(sorted)
+
+            $('#sel_param_region,.sel_param_name').empty();
+            $('.sel_param_name').text(get_p_name(param));
+
+            var $region_append = $('#sel_param_region');
+
+            var html = '';
+            sorted.forEach(function(d, i) {
+
+                var color = this_app.rankScale(d.value);
+                html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div>';
+                if (param !== 'model_score' && param !== 'remaining_days')
+                    html += '<div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div>';
+
+                html += '</div>';
+                //<i class="material-icons i_highlight">highlight</i>
+            });
+
+            $region_append.html(html);
+
+            if ($('.sidenav-trigger').hasClass('on') == false) {
+                console.warn('sidenav not visible')
+                $('.sidenav-trigger i').trigger('click');
+
+            }
+            if ($('.indicators_li .collapsible-body').is(':visible') == false) {
+                $('.indicators_li .collapsible-header').trigger('click');
+            }
+
+            $('.indiv_region_container').on('mouseover', function(e) {
+
+                    if (this_app.provinces == true)
+                        return false
+
+                    $(this).addClass('hovered');
+                    var code_reg = $(this).attr('code_reg');
+                    var t = '#map path.region.code_' + code_reg;
+                    d3.select(t)
+                        .dispatch('mouseenter');
+
+                    populate_map_popup_control_container(code_reg)
+                        // if ($(e.target).hasClass('i_highlight')) {
+
+                    // }
+                })
+                .on('mouseout', function(e) {
+
+                    if (this_app.provinces == true)
+                        return false
+                            //console.log($(this))
+                    $(this).removeClass('hovered');
+                    var code_reg = $(this).attr('code_reg');
+                    var t = '#map path.region.code_' + code_reg;
+                    d3.select(t)
+                        .dispatch('mouseleave');
+                })
+                .on('click', function(e) {
+                    if (this_app.provinces == true)
+                        return false
+
+                    if ($(e.target).hasClass('i_clock')) {
+
+
+                        if ($(e.target).hasClass('clicked')) {
+                            //    alert('clicked')
+                            this_app.plotted_params.code_reg = null;
+                            $(e.target).removeClass('clicked');
+                            $('#lollipop_wrapper').hide();
+                        } else {
+                            $('.i_clock.clicked').removeClass('clicked');
+                            var code_reg = $(this).attr('code_reg');
+                            $(e.target).addClass('clicked');
+                            this_app.plotted_params.code_reg = code_reg;
+                            // this_app.plotted_params.active_param=code_reg;
+                            var region_name = $(this).find('.a_name_container').text()
+                            this_app.t_chart(this_app.plotted_params.active_param, code_reg, classif_temp_data, region_name);
+                        }
+
+
+                    }
+                })
+                //$('#sel_param_region')
+            var map_paths = d3.selectAll("#map path.region");
+            //alert(map_paths.size())
+            //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
+
+            map_paths
+                .transition()
+                .duration(1250)
+                .delay(function(d, i) {
+                    return i * 40;
+                })
+                .attr("delay", function(d, i) {
+                    return 100 * i
+                })
+                .attr('fill', function(d, i) {
+
+                    var pos = reduced.codes.indexOf(d.properties.code_reg);
+                    var val = _this['arr'][pos];
+                    // console.log(_this_model_score)
+                    // console.log(_this_model_score['arr'][pos])
+                    // console.warn(param)
+                    if (param == 'remaining_days' && _this_model_score['arr'][pos] < 0.85) {
+
+                        var color = '#d9d3d3';
+                    } else {
+                        var color = this_app.rankScale(val);
+                    }
+
+
+                    return color;
+                })
+                .attr("stroke", "#fbfdfc")
+                .attr('opacity', 1)
+
+
+        }
+
+        console.warn(classif_temp_data)
+        for (var i = 0; i < temp_dati_regione.length - 1; i++) {
+            var d = temp_dati_regione[i];
+
+            for (var p in d) {
+                if (params_to_arr_index.indexOf(p) !== -1) {
+
+                    var code_reg = d.code_reg;
+
+                    for (var x in classif_temp_data) {
+
+                        if (parseInt(classif_temp_data[x].code_reg) === parseInt(d.code_reg)) {
+                            // console.log(codes_obj[x].code_reg + ' equal than ' + d.code_reg)
+                            for (var s in classif_temp_data[x].data_param_values) {
+
+                                if (classif_temp_data[x].data_param_values[s]['prop'] === p) {
+                                    classif_temp_data[x].data_param_values[s]['arr'].push({
+                                        code: code_reg,
+                                        param: p,
+                                        value: d[p],
+                                        date: d.date
+                                    })
+
+                                }
+                            }
+
+                        }
+                    }
+
+
+                }
+            }
+
+        }
+        //console.warn(arrs[0].data_param_values[0].arr)
+        console.log(classif_temp_data)
+
+
+        this_app.t_chart = function(param, code_reg, data, name) {
+
+                if ($('#t_chart svg').length > 0) {
+                    $('#t_chart svg').remove();
+                }
+
+                $('.lollipop_legend_description').html('<span class="title">' + get_p_name(this_app.plotted_params.active_param) + '</span> evolution in ' + name)
+
+                var mx_w_h = $('#map').height() / 6;
+                $('#lollipop_wrapper').height(mx_w_h + $('nav').height());
+                var map_w = $('#map').width();
+
+                var diff_h = $('#map').height() - mx_w_h - $('nav').height();
+                var diff_w = map_w - (map_w / 3);
+
+                $('#lollipop_wrapper').css('top', diff_h - 5)
+                    .css('width', diff_w + 'px')
+                    //half of half map width!!
+                    .css('margin-left', (map_w / 8));
+
+                $('#lollipop_wrapper').show();
+                $('#lollipop_wrapper').css('display', 'block').show();
+
+                var margin = {
+                    top: 0,
+                    right: 5,
+                    bottom: 5,
+                    left: 5
+                };
+                width = diff_w; // - margin.left - margin.right;
+
+                // append the svg object to the body of the page
+                var t_svg = d3.select("#t_chart")
+                    .append("svg")
+                    .attr("width", width) // + margin.left + margin.right)
+                    .attr("height", width - 35) // + $('nav').height())
+                    .append("g")
+                    .attr("transform",
+                        "translate(0," + margin.top + ")");
+
+
+                var all_group = classif_temp_data.filter(function(d) {
+                    if (d.code_reg == code_reg) {
+                        console.warn(d)
+                        for (var p in d.data_param_values) {
+                            if (d.data_param_values[p].prop == param) {
+                                console.info(d.data_param_values[p])
+                                return d.data_param_values[p]['arr']
+                            }
+                        }
+                    }
+                })[0];
+                var _this = all_group.data_param_values.filter(function(d) {
+                    return d.prop == 'ricoverati_con_sintomi'
+                })[0];
+                console.warn(_this['arr']);
+
+
+                var formatted_arr = _this['arr'].map(function(d) {
+
+                    return {
+                        date: d3.timeParse("%Y-%m-%d")(d.date),
+                        value: d.value
+                    }
+
+                })
+                console.log(formatted_arr)
+                var y_array = formatted_arr.map(function(d) {
+
+                    return d.value
+
+                });
+                console.log(y_array)
+                var min_y = Math.min.apply(Math, y_array);
+                var max_y = Math.max.apply(Math, y_array);
+                // var time_array = _this['arr'].map(function(d) {
+                //     return d.date
+                // });
+
+
+                // Add X axis --> it is a date format
+                var x = d3.scaleTime()
+                    .domain(d3.extent(formatted_arr, function(d) {
+                        return d.date;
+                    }))
+                    .range([0, width]);
+                t_svg.append("g")
+                    .attr("width", width - 35) // + margin.left + margin.right)
+                    //.attr("transform", "translate(0," + height + ")")
+                    .attr("transform", "translate(35," + (mx_w_h + 20) + ")")
+                    .attr("class", "x_axis")
+                    .call(d3.axisBottom(x));
+                t_svg.selectAll(".x_axis text")
+                    .attr(
+                        'fill', "rgb(242, 239, 239)")
+                    .attr(
+                        'font-weight', 'lighter')
+
+                // Add Y axis
+                var y = d3.scaleLinear()
+                    .domain([min_y, max_y])
+                    .range([mx_w_h, 0]);
+                t_svg.append("g")
+                    .attr("class", "y_axis")
+                    .attr("transform", "translate(35,20)")
+                    .call(d3.axisLeft(y).ticks(5))
+
+                t_svg.selectAll(".y_axis text")
+                    .attr(
+                        'fill', "rgb(242, 239, 239)")
+                    .attr(
+                        'font-weight', 'lighter')
+
+
+                // Initialize line with group a
+                var line_initial = t_svg
+                    .append('g')
+                    .attr("transform", "translate(0,17)")
+                    .append("path")
+                    .classed('line_path', true)
+                    .datum(formatted_arr)
+                    .attr("d", d3.line()
+                        .x(function(d) {
+                            return x(d.date) + 35
+                        })
+                        .y(function(d) {
+                            return y(d.value)
+                        })
+                    )
+                    .attr("stroke-width", 2)
+                    .attr("stroke", '#ffc107')
+
+                .style("fill", "none");
+
+                // Initialize dots with group a
+                var dot = t_svg
+                    .selectAll('circle')
+                    .data(formatted_arr)
+                    .enter()
+                    .append('circle')
+                    .attr("cx", function(d) {
+                        return x(d.date) + 35
+                    })
+                    .attr("cy", function(d) {
+                        return y(d.value) + 17
+                    })
+                    .attr("r", 0)
+                    .transition()
+                    .duration(200)
+                    .attr("r", 3)
+                    .attr('opacity', .6)
+                    .style("fill", "#ff6347")
+
+
+                setTimeout(function() {
+                    t_svg.selectAll('.line_path')
+                        .datum(formatted_arr)
+                        .transition()
+                        .duration(1000)
+                        .attr("d", d3.line()
+                            .x(function(d) {
+                                return x(d.date) + 35
+                            })
+                            .y(function(d) {
+                                return y(d.value)
+                            })
+                        )
+                        .attr("stroke-width", 2);
+
+                    t_svg.selectAll('circle')
+                        .datum(formatted_arr)
+                        .transition()
+                        .duration(200)
+                        .attr("r", 3)
+                        .attr('opacity', .6)
+
+
+                }, 1500);
+
+
+
+            } //end chart
+
+        this_app.create_prov_scale = function() {
+            var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
+
+            var arr = covid_prov_data.map(function(d) {
+                return d.totale_casi;
+            })
+
+            this_app.prov_max = Math.max.apply(Math, arr);
+
+            this_app.prov_min = Math.min.apply(Math, arr);
+
+            function sort_prov_by_value(param) {
+
+                return function(a, b) {
+
+                    //  console.info(a.data[param])  //2,3,1,1...
+                    return a.totale_casi < b.totale_casi ? 1 : -1;
+                }
+
+            }
+            switch (color) {
+                case 'green':
+                    var c_arr = ['#a5ecd8', '#04956c'];
+                    break;
+
+                case 'blue':
+                    var c_arr = ['#9de0e8', '#0f2fe2'];
+                    break;
+                case 'yellowish':
+                    var c_arr = ['#ffeb3b', '#ff5722'];
+                    break;
+                case 'redish':
+                    var c_arr = ['#e37ff5', '#f30858'];
+                    break;
+
+                default:
+                    break;
+
+            }
+            console.log(c_arr);
+            console.warn(this_app.prov_min)
+
+            this_app.prov_rankScale = d3.scaleLinear().domain([this_app.prov_min, this_app.prov_max])
+                .interpolate(d3.interpolateHcl)
+                .range(c_arr);
+
+        }
+
+        function draw_prov(prov_geojson) {
+
+            /*
+            code_reg": 13,
+        "name_reg": "Abruzzo",
+        "code_prov": 69,
+        "name_prov": "Chieti",
+        "sigla_provincia": "CH",
+        "lat": 42.35103167,
+        "long": 14.16754574,
+        "totale_casi": 723,
+            */
+
+
+            console.log('draw prov')
+
+            d3.selectAll('path.region').attr('opacity', 0);
+            this_app.provinces = true;
+
+            var container = map.getCanvasContainer();
+
+            var svg = d3.select(container).select("svg");
+            console.log(prov_geojson);
+            provinceElement = svg.selectAll("path.province")
+                .data(prov_geojson[0].features)
+                .enter()
+                .append("path")
+                // .classed('region', true)
+                .attr('class', function(d) {
+                    // console.warn('province code_' + d.properties.code_prov)
+                    return 'province code_' + d.properties.code_prov;
+                })
+                //.attrs(app.initial_country_style)
+                .attr("code", function(d) {
+
+                    return d.properties.code_prov;
+                })
+                .attr('fill', "black")
+                .attr('opacity', .4)
+                .attr('stroke-width', 0.4)
+                .attr('stroke', "#ffff")
+
+            svg.selectAll("path.province")
+                .transition()
+                .duration(1050)
+                .delay(function(d, i) {
+                    return i * 20;
+                })
+
+            .attr('fill', function(d) {
+
+                    var value = covid_prov_data.filter(function(_d) {
+                        if (_d.code_prov == d.properties.code_prov) {
+
+                            return _d
+                        }
+                    })[0];
+
+                    var color = this_app.prov_rankScale(value.totale_casi);
+                    console.info(color)
+
+                    return color;
+                    //this_app.rankScale(value.totale_casi)
+
+                })
+                .attr('opacity', .9)
+
+
+            app.update();
+        }
+
+        $('.plot_prov').on('click', function() {
+
+            if ($(this).hasClass('clicked')) {
+                this_app.provinces = false;
+                console.log('cliekd present');
+                d3.selectAll("#map path.province").remove()
+
+                $(this).removeClass('clicked')
+            } else {
+                this_app.provinces = true;
+                $(this).addClass('clicked');
+
+                this_app.create_prov_scale();
+
+                console.warn(this_app.prov_rankScale(1000))
+
+                if (d3.selectAll("#map path.province").size() == 0) {
+                    d3.json("./data/covid_geo_province.json").then(draw_prov);
+
+
+                } else {
+                    d3.selectAll("path.province")
+                        .transition()
+                        .duration(1050)
+                        .delay(function(d, i) {
+                            return i * 40;
+                        })
+                        .attr("delay", function(d, i) {
+                            return 10 * i
+                        })
+                        .attr('fill', function(d) {
+
+                            var value = covid_prov_data.filter(function(_d) {
+                                if (_d.code_prov == d.properties.code_prov) {
+                                    return _d
+                                }
+                            })[0];
+
+                            var color = this_app.prov_rankScale(value.totale_casi);
+                            console.info(color)
+
+                            return color;
+                            //this_app.rankScale(value.totale_casi)
+
+                        })
+                    app.update()
+                }
+
+
+            }
+        })
+
+        //         covid_prov_data.map(function(d){
+        // return {code_reg}
+        //         })
+
+        //        d3.json("./data/covid_geo_province.json").then(draw_prov);
+    </script>
+    <!-- <script src="./data/covid_geo_province.js"></script> -->
+    <script src="./data/covid_prov_data.js"></script>
+
+
+    <!-- <script src="./new_app_js_2/bubble.js"></script> -->
+</body>
