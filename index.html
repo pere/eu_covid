@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <title>UNvsVIRUS</title>
+    <title>Model & Scan COVID Trends (MSCT)</title>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css' rel='stylesheet' />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -99,8 +99,8 @@
                 </ul>
                 <ul class="left">
                     <li>
-                        <!-- <a href="#!" class="jrc-logo"><img src="https://global-surface-water.appspot.com/gsw/newmockup/img/europelogo.png" alt=""></a> -->
-                        <p class="app-title">EUvsCOVID</p>
+
+                        <p class="app-title">Model & Scan COVID Trends (MSCT)</p>
                     </li>
                 </ul>
 
@@ -236,9 +236,17 @@
                 return _d.code_reg == code
             })[0];
 
-            var html = ''
+            var html = '<div class="region_name">' + _t.region_name + '</div>';
             for (var p in _t) {
-                html += '<div>' + p + ' : ' + _t[p] + '</div>';
+                if (this_app.stats_to_param.indexOf(p) !== -1) {
+
+                    if (p == 'model_score') {
+                        var val = parseFloat(_t[p]).toFixed(3)
+                    } else {
+                        var val = _t[p];
+                    }
+                    html += '<div class="row"><div class="col s8">' + p + ' </div><div class="col s4"> ' + val + '</div></div>';
+                }
             }
             //html += '</div>'
             console.log(html)
@@ -247,6 +255,8 @@
             $('.map_popup_control_container').append(html);
 
             $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
+
+
         }
         map = new mapboxgl.Map({
             container: 'map', // container id
