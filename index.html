@@ -83,13 +83,9 @@
 
             <form>
 
-                <ul class="right hide-on-med-and-down">
+                <ul class="right zzhide-on-med-and-down">
 
-                    <li>
-                        <a class="modal-trigger" href="#country_modal"><i
-                                    class="material-icons country_icon_info">info</i></a>
 
-                    </li>
                     <li>
                         <a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block!important;"><i
                         class="material-icons">view_module</i></a>
@@ -576,6 +572,8 @@
                     //$('.map_legend_control_container.mapboxgl-ctrl').hide();
 
                     $('.map_legend_control_container .param_btn .btn').on('click', function(e) {
+
+
                         if ($(this).hasClass('clicked')) {
 
                         } else {
@@ -667,33 +665,7 @@
             d.min_max.min = min;
         });
 
-        // alert($('.map_legend_control_container select').length)
-        // $('.map_legend_control_container select').on('change', function() {
-        //     alert($(this).find('option:selected').attr('value'))
-        // })
 
-        // setTimeout(function() {
-        //     var param = 'deceduti';
-        //     app.update_geom_by_model_rank(param);
-        // }, 500);
-        // setTimeout(function() {
-        //     var param = 'terapia_intensiva';
-        //     app.update_geom_by_model_rank(param);
-        // }, 500);
-        //         var models_colors_obj = [{
-        //     index_code: 'env_index_val',
-        //     rank_code: 'rank_env',
-        //     //medium purple
-        //     color: "#a763d7",
-        //     text: "Environmental",
-        //     //purples
-        //     gradient: ['#d2aaee', '#8e08ec']
-        // },
-
-        // function get_rank_color(code,_this,arr_index) {
-
-        //     color = app_data.rankScale(this_rank);
-        // }
 
         function sort_by_value(param) {
 
@@ -705,6 +677,7 @@
 
         }
         this_app.update_geom_by_model_rank = function() {
+
                 $('#lollipop_wrapper').hide();
                 app_state.initial_state = false;
                 var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
@@ -756,7 +729,16 @@
                     //<i class="material-icons i_highlight">highlight</i>
                 });
 
-                $region_append.html(html)
+                $region_append.html(html);
+
+                if ($('.sidenav-trigger').hasClass('on') == false) {
+                    console.warn('sidenav not visible')
+                    $('.sidenav-trigger i').trigger('click');
+
+                }
+                if ($('.indicators_li .collapsible-body').is(':visible') == false) {
+                    $('.indicators_li .collapsible-header').trigger('click');
+                }
 
                 $('.indiv_region_container').on('mouseover', function(e) {
 
