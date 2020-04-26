@@ -1,0 +1,128 @@
+.mapboxgl-ctrl-bottom-right {
+    margin: 8px !important;
+    bottom: 95px!important;
+    width: auto;
+    /* color: blue; */
+    /* width: 12%!important; */
+    /* width: 10px; */
+    /* margin: 30px!important; */
+}
+
+
+/* extenral */
+
+.legend_control_container {
+    width: 330px!important;
+    font-size: 13px!important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23)!important;
+}
+
+
+/* internal */
+
+.expanded {
+    min-height: 300px!important;
+}
+
+.map_legend_control_container {
+    max-height: 80px;
+    min-width: 200px;
+    background-color: #041620!important;
+    padding: 3px!important;
+    border: 1px solid #041620;
+    color: white;
+}
+
+.map_popup_control_container {
+    max-height: 350px;
+    overflow: auto;
+    background-color: #041620!important;
+    padding: 20px!important;
+    border: 1px solid #041620;
+    color: white;
+}
+
+.select_params_map_container {
+    height: 25px;
+    /* width: 200px; */
+    /* border: 1px solid blue; */
+}
+
+.select_params_map_container .select-wrapper input.select-dropdown,
+.select_params_map_container .select-wrapper span {
+    font-size: 1.3em!important;
+}
+
+.select_params_map_container .select-wrapper span {
+    line-height: 15px;
+    padding: 14px 8px;
+}
+
+.select_params_map_container .dropdown-content li {
+    /* max-height: 40px; */
+    background-color: #d3d6cd;
+    border-bottom: 1px solid white;
+}
+
+ul.select-dropdown,
+ul.dropdown-content {
+    width: 100% !important;
+    top: 5px!important;
+}
+
+.select_params_map_container .select-dropdown.dropdown-content li.selected {
+    background-color: rgba(255, 235, 59, 0.79)!important;
+}
+
+li:hover {
+    background-color: black!important;
+}
+
+.select_params_map_container ul li:hover {
+    background-color: white!important;
+}
+
+#sel_param_region {
+    color: white;
+    max-height: 350px;
+    overflow: auto;
+}
+
+#sel_param_region:hover,
+#sel_param_region div:hover {
+    cursor: pointer;
+}
+
+.sel_param_name {
+    background-color: #e47561;
+    color: #f5b800;
+    color: white;
+    font-size: 1.2em;
+    padding: 0 .75rem;
+}
+
+.sel_param_name,
+#sel_param_region>div.row {
+    margin-bottom: 0px!important;
+}
+
+#sel_param_region i:hover {
+    cursor: pointer;
+}
+
+#sel_param_region i {
+    top: 15px;
+    position: relative;
+    color: white;
+    font-size: 15px!important;
+    margin-left: 12px;
+}
+
+.sidenav {
+    width: 36%!important!;
+}
+
+.hovered {
+    background-color: #ffeb3b!important;
+    color: chocolate!important;
+}

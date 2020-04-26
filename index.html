@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <title>UNvsVIRUS</title>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="./new_css_2/extra_css.css">
+    <link rel="stylesheet" href="./new_css_2/media.css">
+
+
+    <script src="./js/jquery.js"></script>
+
+    <script src="./js/materialize_v1.js"></script>
+
+    <link rel="stylesheet" href="./new_css_2/covid.css">
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./new_css_2/energy.css">
+
+    <script src='//unpkg.com/d3@5.0.0/dist/d3.min.js'></script>
+    <script src='./data/model_results.js'></script>
+    <script src='./data/dati_regioni.js'></script>
+    <script src='./data/classif_temp_data.js'></script>
+
+    <script src='./js/d3-selection-multi.min.js'></script>
+    <script src="./js/topojson.v1.min.js"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.js'></script>
+    <script src="./new_app_js_2/helpers.js"></script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-wrapper">
+
+
+            <form>
+
+                <ul class="right zzzhide-on-med-and-down">
+                    <ul id="rank_legend_dropdown" class="rank_legend_dropdown_content dropdown-content">
+                        <li class="main collection-item">
+                            <div class="rank_legend_control">
+                                <div class="rank_legend_control_container">
+
+                                    <div class="matrix_btn row">
+                                        <div class="col s3"><a class="btn-small main_index_val">Main index</a></div>
+                                        <div class="col s3"><a class="btn-small env_index_val">Environmental</a></div>
+                                        <div class="col s2"><a class="btn-small social_index_val">Social</a></div>
+                                        <div class="col s2"><a class="btn-small financial_index_val selected">Financial</a></div>
+                                        <div class="col s2"><a class="btn-small political_index_val">Political</a></div>
+                                    </div>
+
+                                    <svg class="legend_svg"></svg>
+
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+
+
+
+                    <li><a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block!important;"><i
+                                class="material-icons">view_module</i></a>
+                    </li>
+
+
+                    <li><a href="#" class="light_mode daylight" style="display: block!important;"><i
+                                class="material-icons light_mede_button">highlight</i></a>
+                    </li>
+
+                    <li>
+                        <a class="modal-trigger" href="#intro_modal"><i
+                                    class="material-icons icon_info">info</i></a>
+
+                    </li>
+
+                    <li>
+                        <a class="modal-trigger country_modal_trigger" href="#country_modal"><i
+                                    class="material-icons country_icon_info">info</i></a>
+
+                    </li>
+
+                </ul>
+                <ul class="left">
+                    <li>
+                        <a href="#!" class="jrc-logo"><img src="https://global-surface-water.appspot.com/gsw/newmockup/img/europelogo.png" alt=""></a>
+                        <p class="app-title">EUvsCOVID</p>
+                    </li>
+                </ul>
+
+
+            </form>
+        </div>
+    </nav>
+    <ul id="slide-out" class="sidenav">
+        <ul class="collapsible">
+
+            <li class='indicators_li'>
+                <div class="card horizontal collapsible-header indicators">
+                    <div class="card-image">
+
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content">
+                            <span class="card-title card-title_country">Models data</span>
+                            <p class="country_name_header"></p>
+                            <div><i onclick="window.print()" class="material-icons pdf_print">picture_as_pdf</i></div>
+                            <div><i class="material-icons csv_export_all">cloud_download</i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible-body">
+
+
+                    <!-- <h3 class="subheader">INDICATORS</h3> -->
+                    <ul class="list regions_list">
+
+                        <li>
+
+                            <div class="row sel_param_name">
+                                <div class="col s12">test</div>
+                            </div>
+                            <div id="sel_param_region">
+
+
+
+
+                            </div>
+                        </li>
+                    </ul>
+
+                </div>
+            </li>
+
+
+            <li class='country_li main_li'>
+                <div class="card horizontal collapsible-header country">
+                    <div class="card-image">
+
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content">
+                            <span class="card-title card-title_country">Regional data</span>
+                            <!-- <p class="country_name_header"></p> -->
+                            <div><i onclick="window.print()" class="material-icons pdf_print">picture_as_pdf</i></div>
+                            <div><i class="material-icons csv_export_all">cloud_download</i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible-body">
+
+                    <div class="row">
+                        <div class="col s12 profile_tool_info">
+                            STILL NO INFO
+                        </div>
+                    </div>
+
+                </div>
+
+            </li>
+
+        </ul>
+    </ul>
+    <!-- <div id="wrapper"> -->
+    <div id="map"></div>
+
+
+    <script src="./new_app_js_2/attach_ev.js"></script>
+    <script>
+        var map;
+
+        app.throttle = function(fn, threshhold, scope) {
+            threshhold || (threshhold = 250);
+            var last,
+                deferTimer;
+            return function() {
+                var context = scope || this;
+
+                var now = +new Date,
+                    args = arguments;
+                if (last && now < last + threshhold) {
+                    // hold on to it
+                    clearTimeout(deferTimer);
+                    deferTimer = setTimeout(function() {
+                        last = now;
+                        fn.apply(context, args);
+                    }, threshhold);
+                } else {
+                    last = now;
+                    fn.apply(context, args);
+                }
+            };
+        }
+
+
+        function populate_map_popup_control_container(code) {
+
+
+            var _t = model_results.filter(function(_d) {
+                return _d.code_reg == code
+            })[0];
+
+            var html = ''
+            for (var p in _t) {
+                html += '<div>' + p + ' : ' + _t[p] + '</div>';
+            }
+            //html += '</div>'
+            console.log(html)
+
+            //alert($('.legend_control_container').length)
+            $('.map_popup_control_container').append(html);
+
+            $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
+        }
+
+
+        d3.json("./data/regioni.json").then(mapDraw);
+
+
+        function mapDraw(geojson) {
+
+
+
+
+            map = new mapboxgl.Map({
+                container: 'map', // container id
+                //style: 'mapbox://styles/mapbox/streets-v8',
+                style: {
+                    "version": 8,
+                    "sources": {
+                        "geoserver": {
+                            "type": "vector",
+                            "tiles": [
+                                "https://geospatial.jrc.ec.europa.eu/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=hotspots:gaul_0_simplified&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}"
+                            ],
+                        }
+                    },
+                    "layers": [{
+                        "id": "gaul_0_simple",
+                        "source": "geoserver",
+                        "source-layer": "gaul_0_simplified",
+                        "type": "fill",
+                        // "minzoom": 4,
+                        // "maxzoom": 6,
+                        'paint': {
+                            "fill-color": "#a2a7ab",
+                            "fill-outline-color": "#87989c",
+                            "fill-opacity": 0.9
+
+                        }
+                    }]
+                },
+                center: [11.07, 42],
+
+
+                //center: [141.15448379999998, 39.702053　],
+                zoom: 4.8,
+
+                attributionControl: false
+            });
+            $(".mapboxgl-map").css('background-color', "#a1b4c1")
+            map.addControl(new mapboxgl.NavigationControl());
+
+            //holding info on mouseover geo
+            class map_legend_control2 {
+                onAdd(map) {
+                    this.map = map;
+                    this.container = document.createElement('div');
+                    //this.container.className = 'click_country_control_container';
+                    this.container.className = 'map_popup_control_container';
+
+                    return this.container;
+                }
+                onRemove() {
+                    this.container.parentNode.removeChild(this.container);
+                    this.map = undefined;
+                }
+            }
+            var map_popup_control_container_ctrl = new map_legend_control2();
+            map.addControl(map_popup_control_container_ctrl, 'bottom-right');
+
+
+            //holding user select list
+            class map_legend_control {
+                onAdd(map) {
+                    this.map = map;
+                    this.container = document.createElement('div');
+                    //this.container.className = 'click_country_control_container';
+                    this.container.className = 'map_legend_control_container';
+
+                    return this.container;
+                }
+                onRemove() {
+                    this.container.parentNode.removeChild(this.container);
+                    this.map = undefined;
+                }
+            }
+            var legend_control_ctrl = new map_legend_control();
+            map.addControl(legend_control_ctrl, 'bottom-right');
+
+
+
+
+
+            app.just_region_popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: true,
+                className: 'region_map_popup',
+                //offset: [20, -20]
+                offset: {
+                    'bottom': [0, -20],
+                    'top': [0, 15],
+                    'top-left': [0, 0], //[linearOffset, (markerHeight - markerRadius - linearOffset) * -1],
+                    'top-right': [0, 0], //[-linearOffset, (markerHeight - markerRadius - linearOffset) * -1],
+
+                }
+            });
+            app.just_region_popup.addTo(map);
+
+
+
+            var _t = model_results.filter(function(d) {
+                return d.code_reg == '13'
+            })[0];
+
+            $('.map_legend_control_container,.map_popup_control_container').addClass('mapboxgl-ctrl')
+                //append('<div class="mapboxgl-ctrl mapboxgl-ctrl-group legend_control_container></div>');
+            var html = ''
+            for (var p in _t) {
+                html += '<div>' + p + ' : ' + _t[p] + '</div>';
+            }
+            //html += '</div>'
+            console.log(html)
+            setTimeout(function() {
+                //alert($('.legend_control_container').length)
+                $('.map_popup_control_container').append(html);
+
+                $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
+            }, 800)
+
+
+
+
+            map.on("mousemove", function(e) {
+
+                if (!mouseovered_path._data) {
+
+                    console.warn('no mouseovered_path data')
+                    return false;
+                }
+
+
+                var latlng = e.lngLat;
+                var x = e.originalEvent.clientX;
+                var y = e.originalEvent.clientY;
+
+                app.just_region_popup.setLngLat(latlng)
+                app.just_region_popup.setHTML('<div class="country_popup small_popup">' + mouseovered_path._data.den_reg + '</div>')
+
+            })
+
+            function projectPoint(lon, lat) {
+                var point = map.project(new mapboxgl.LngLat(lon, lat));
+                this.stream.point(point.x, point.y);
+            }
+
+            var container = map.getCanvasContainer()
+            var svg = d3.select(container).append("svg");
+            var gaul_1;
+
+
+            var transform = d3.geoTransform({
+                point: projectPoint
+            });
+            var path = d3.geoPath().projection(transform);
+
+
+            var featureElement = svg.selectAll("path")
+                .data(geojson.features)
+                .enter()
+                .append("path")
+                // .classed('region', true)
+                .attr('class', function(d) {
+                    return 'region code_' + d.properties.code_reg;
+                })
+                .attrs(app.initial_country_style)
+                .attr("code", function(d) {
+
+                    return d.properties.code_reg;
+                })
+                .on('click', function(d) {
+                    console.log(d)
+                    var path_name = d.properties.den_reg;
+
+
+                })
+                .on('mouseenter', function(d) {
+
+                    $('.mapboxgl-popup').show();
+                    console.info('mouseenter geo path ' + d.properties.code_reg)
+                    mouseovered_path._data = d.properties;
+                    mouseovered_path.code = d.properties.code_reg;
+                    var t = '#map path.region.code_' + d.properties.code_reg;
+
+                    app.mouseover_prev_color = d3.select(t).attr('fill');
+                    app.mouseover_prev_opacity = d3.select(t).attr('opacity');
+                    console.info(d3.selectAll('.region.code_' + d.properties.code_reg))
+                    d3.selectAll(t)
+                        .attr('fill', '#9acd32')
+                        // .transition().delay(50)
+                        .attr('fill', '#ffeb3b')
+                        .attr('opacity', .8)
+
+                    populate_map_popup_control_container(d.properties.code_reg, d)
+
+
+
+
+                })
+                .on('mouseleave', function(d) {
+                    $('.map_popup_control_container').empty();
+                    // app.throttle(
+                    console.warn('mouseout geo path ' + d.properties.code_reg)
+                    var t = '#map path.region.code_' + d.properties.code_reg;
+                    if (app_state.initial_state == true) {
+                        d3.select(t)
+                            // .transition().delay(100)
+                            //.attr('fill', app.mouseover_prev_color)
+                            //from initial_no_fill_country_style
+                            .attr('fill', 'black')
+                            //.attr('opacity', app.mouseover_prev_opacity)
+                            .attr('opacity', 0.4);
+                    } else {
+                        d3.select(t)
+                            //  .transition().delay(100)
+                            .attr('fill', app.mouseover_prev_color)
+                            //.attr('opacity', app.mouseover_prev_opacity)
+                            .attr('opacity', app.mouseover_prev_opacity);
+
+                    }
+
+
+                    $('.mapboxgl-popup').hide();
+                })
+
+
+            function update() {
+                mouseovered_path.code = null;
+                featureElement.attr("d", path);
+
+            }
+
+            //
+            map.on("viewreset", update);
+            map.on("movestart", function() {
+                svg.classed("hidden", true);
+            });
+            map.on("rotate", function() {
+                svg.classed("hidden", true);
+            });
+            map.on("moveend", function() {
+                update();
+                svg.classed("hidden", false);
+            })
+
+
+
+            update();
+
+
+
+
+
+
+
+
+        }
+
+        var this_app = {};
+        this_app.stats_to_param = ['remaining_days', 'model_score', 'ricoverati_con_sintomi', 'terapia_intensiva', 'totale_ospedalizzati',
+            'isolamento_domiciliare', 'totale_positivi', 'variazione_totale_positivi', 'nuovi_positivi',
+            'dimessi_guariti', 'deceduti', 'totale_casi', 'tamponi', 'casi_testati'
+        ];
+
+
+        var params_to_arr_index = []
+        var select_html = '<div class="row select_params_map_container"><div class="input-field s12 col"><select id="param_select">';
+        var options = '';
+        var reduced = model_results.reduce(function(memo, d, i) {
+
+            if (i == 0) {
+                var keyNames = Object.keys(d);
+                keyNames.forEach(function(prop, i2) {
+                    if (this_app.stats_to_param.indexOf(prop) !== -1) {
+                        params_to_arr_index.push(prop);
+                        options += '<option value="' + prop + '">' + prop + '</option> ';
+
+                        d[prop + '_arr'] = [];
+                        memo.data.push({
+                            prop_name: prop,
+                            arr: [],
+                            arr_data_codes: [],
+                            min_max: {}
+                        }); //,d.prop)
+                    }
+
+                })
+                var s = select_html + options + '</select><label>Change parameter to visualize</label></div></div>';
+                //if we want to add to lateral bar
+                //$('.indicators_list .col').append(s)
+
+                setTimeout(function() {
+
+                    $('.map_legend_control_container').append(s);
+                    $('select').formSelect();
+
+                    $('.map_legend_control_container select').on('change', function() {
+                        var param = $(this).find('option:selected').attr('value');
+                        app.update_geom_by_model_rank(param);
+                        $('.map_legend_control_container').removeClass('expanded')
+                    })
+                    $('.map_legend_control_container').on('click', function(e) {
+                        console.warn($(e.target))
+                        if ($('.map_legend_control_container').hasClass('expanded') == false) {
+                            $('.map_legend_control_container').addClass('expanded')
+                        }
+                    })
+
+                }, 700)
+
+            }
+            //  console.warn(memo.data)
+
+            for (var p in d) {
+                if (p == 'code_reg') {
+                    memo.codes.push(d[p]);
+                }
+                if (p == 'denominazione_regione') {
+                    memo.region_names.push(d[p]);
+                }
+
+                if (params_to_arr_index.indexOf(p) !== -1) {
+
+                    memo.data.filter(function(_d, i3) {
+                        if (_d.prop_name == p) {
+                            memo.data[i3]['arr_data_codes'].push({
+                                code: d.code_reg,
+                                name: d.denominazione_regione,
+                                value: d[p]
+                            })
+                            memo.data[i3].arr.push(d[p])
+                        }
+                    })
+
+                }
+            }
+            return memo
+
+        }, {
+            codes: [],
+            region_names: [],
+            arr_data_codes: [],
+            data: []
+        });
+        // console.warn(params_to_arr_index)
+
+        reduced['data'].forEach(function(d, i) {
+            var arr = d.arr;
+
+            var max = Math.max.apply(Math, d.arr);
+
+            var min = Math.min.apply(Math, d.arr);
+            d.min_max.max = max;
+            d.min_max.min = min;
+        });
+        console.log(reduced)
+            // alert($('.map_legend_control_container select').length)
+            // $('.map_legend_control_container select').on('change', function() {
+            //     alert($(this).find('option:selected').attr('value'))
+            // })
+
+        setTimeout(function() {
+            var param = 'deceduti';
+            app.update_geom_by_model_rank(param);
+        }, 500);
+        setTimeout(function() {
+            var param = 'terapia_intensiva';
+            app.update_geom_by_model_rank(param);
+        }, 500);
+        //         var models_colors_obj = [{
+        //     index_code: 'env_index_val',
+        //     rank_code: 'rank_env',
+        //     //medium purple
+        //     color: "#a763d7",
+        //     text: "Environmental",
+        //     //purples
+        //     gradient: ['#d2aaee', '#8e08ec']
+        // },
+
+        // function get_rank_color(code,_this,arr_index) {
+
+        //     color = app_data.rankScale(this_rank);
+        // }
+
+        function sort_by_value(param) {
+
+            return function(a, b) {
+
+                //  console.info(a.data[param])  //2,3,1,1...
+                return a.value < b.value ? 1 : -1;
+            }
+
+        }
+        app.update_geom_by_model_rank = function(param) {
+                app_state.initial_state = false;
+
+                var _this = reduced.data.filter(function(d) {
+                    return d.prop_name == param;
+                })[0];
+                this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
+                    .interpolate(d3.interpolateHcl)
+                    .range(['#a5ecd8', '#04956c']);
+
+                console.log(_this);
+                var sorted = _this.arr_data_codes.sort(sort_by_value(param));
+                console.log(sorted)
+
+                $('#sel_param_region,.sel_param_name').empty();
+                $('.sel_param_name').text(param);
+
+                var $region_append = $('#sel_param_region');
+
+                var html = '';
+                sorted.forEach(function(d, i) {
+                    console.warn(d)
+                    var color = this_app.rankScale(d.value);
+                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div><div class="col s3 i_container"><i class="small material-icons i_star" style="color:white">grade</i><i class="material-icons i_highlight">highlight</i></div></div>';
+                });
+                console.log(html);
+                $region_append.html(html)
+
+                $('.indiv_region_container').on('mouseover', function(e) {
+                        console.log($(this))
+                        $(this).addClass('hovered');
+                        var code_reg = $(this).attr('code_reg');
+                        var t = '#map path.region.code_' + code_reg;
+                        d3.select(t)
+                            .dispatch('mouseenter');
+
+                        populate_map_popup_control_container(code_reg)
+                        if ($(e.target).hasClass('i_highlight')) {
+
+                        }
+                    })
+                    .on('mouseout', function(e) {
+                        console.log($(this))
+                        $(this).removeClass('hovered');
+                        var code_reg = $(this).attr('code_reg');
+                        var t = '#map path.region.code_' + code_reg;
+                        d3.select(t)
+                            .dispatch('mouseleave');
+                    })
+                    //$('#sel_param_region')
+                console.info($('#sel_param_region').html())
+
+                var map_paths = d3.selectAll("#map path.region");
+                //alert(map_paths.size())
+                //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
+
+                map_paths
+                    .transition()
+                    .duration(1250)
+                    .delay(function(d, i) {
+                        return i * 40;
+                    })
+                    .attr("delay", function(d, i) {
+                        return 100 * i
+                    })
+                    .attr('fill', function(d, i) {
+                        // return get_rank_color(d.properties.code,_this[i],i)
+                        // app_data.lollipop_obj.rank_code)
+
+                        //  console.info(d);
+                        /*
+                        properties:
+cod_rip: 4
+code_reg: 17
+den_reg: "Basilicata"
+*/
+                        //console.log(_this)
+                        /*
+                        {prop_name: "deceduti", arr: Array(20), min_max: {…}}
+arr: (20) [276, 24, 76, 327, 3204, 246, 370, 1022, 12740, 845, 19, 2559, 362, 96, 208, 705, 381, 61, 127, 1181]
+min_max: {max: 12740, min: 19}
+prop_name: "deceduti"
+*/
+
+                        var pos = reduced.codes.indexOf(d.properties.code_reg);
+                        var val = _this['arr'][pos];
+                        var color = this_app.rankScale(val);
+                        return color;
+                    })
+                    .attr("stroke", "#fbfdfc")
+                    .attr('opacity', 1)
+
+
+            }
+            /*
+            //the result is kept as classif_temp_data, as it does not work if directly..????
+            var codes_arr = [];
+            var codes_obj = []
+            temp_dati_regione.forEach(function(d) {
+                if (codes_arr.indexOf(d.code_reg) == -1) {
+                    codes_arr.push(d.code_reg);
+                    codes_obj.push({
+                        code_reg: d.code_reg,
+                        data_param_values: []
+                    })
+
+                }
+            })
+
+            var region_names_arr = [];
+            var arrs_arr = [];
+            var temp_reduced = temp_dati_regione.reduce(function(memo, d, i) {
+
+                if (i == 0) {
+                    var keyNames = Object.keys(d);
+                    console.warn(keyNames)
+
+                    keyNames.forEach(function(prop, i2) {
+                        if (this_app.stats_to_param.indexOf(prop) !== -1) {
+                            params_to_arr_index.push(prop);
+                            console.info(codes_obj)
+                            var x = {}
+                            x.prop_name = prop + '_arr';
+                            
+                            arrs_arr.push({
+                                    prop: prop,
+                                    arr: []
+                                })
+                           
+                        }
+                       
+
+                    })
+
+                }
+                return memo
+            }, {
+                codes: [],
+                region_names: [],
+                arr_data_temp: [],
+                data: []
+            });
+            console.log(arrs_arr)
+
+            codes_obj.forEach(function(d) {
+                for (var p in arrs_arr) {
+                    console.log(p)
+                    d.data_param_values.push(arrs_arr[p]);
+                }
+            })
+            //console.log(JSON.stringify(codes_obj))
+            */
+        console.warn(classif_temp_data)
+        for (var i = 0; i < temp_dati_regione.length - 1; i++) {
+            var d = temp_dati_regione[i];
+
+            for (var p in d) {
+                if (params_to_arr_index.indexOf(p) !== -1) {
+
+                    var code_reg = d.code_reg;
+
+                    for (var x in classif_temp_data) {
+
+                        if (parseInt(classif_temp_data[x].code_reg) === parseInt(d.code_reg)) {
+                            // console.log(codes_obj[x].code_reg + ' equal than ' + d.code_reg)
+                            for (var s in classif_temp_data[x].data_param_values) {
+
+                                if (classif_temp_data[x].data_param_values[s]['prop'] === p) {
+                                    classif_temp_data[x].data_param_values[s]['arr'].push({
+                                        code: code_reg,
+                                        param: p,
+                                        value: d[p],
+                                        date: d.date
+                                    })
+
+                                }
+                            }
+
+                        }
+                    }
+
+
+                }
+            }
+
+        }
+        //console.warn(arrs[0].data_param_values[0].arr)
+        console.log(classif_temp_data)
+    </script>
+    <!-- <script src="./new_app_js_2/lollipop.js"></script> -->
+    <!-- <script src="./new_app_js_2/bubble.js"></script> -->
+</body>

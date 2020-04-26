@@ -1,0 +1,543 @@
+@media print {
+    #country_profile>table {
+        border-bottom: 1px solid #fff!important;
+    }
+    #separator {
+        display: none!important;
+    }
+    .sidenav {
+        width: 100%!important;
+    }
+    .card {
+        box-shadow: none!important;
+        border-bottom: 1px solid gray!important;
+    }
+    .row {
+        border-bottom: 0.5px solid grey!important;
+    }
+    .card-title_country {
+        box-shadow: none!important;
+        color: black!important;
+    }
+    .mangroves_li {
+        display: none!important;
+    }
+    .reservoirs_li {
+        display: none!important;
+    }
+    .lakes_li {
+        display: none!important;
+    }
+    .country_li {
+        background-color: #fff;
+        margin-top: -10px!important;
+    }
+    .csv_export_all {
+        display: none!important;
+    }
+    .pdf_print {
+        display: none!important;
+    }
+    .print_disclamer {
+        display: block!important;
+        margin-bottom: 20px!important;
+        border-bottom: 3px solid white;
+    }
+    .material-icons {
+        display: none!important;
+    }
+    .logo_un_img {
+        width: 50px!important;
+        float: left;
+        margin-top: -10px!important;
+    }
+    .logo_jrc_img {
+        width: 50px!important;
+        float: right;
+    }
+    nav {
+        display: none!important;
+    }
+    .print-title {
+        text-align: center!important;
+    }
+    .hide_print {
+        display: none!important;
+    }
+}
+
+.print_disclamer {
+    display: none;
+}
+
+.text_color_lakes {
+    width: 84px!important;
+    float: left;
+}
+
+.score_adjust {
+    position: relative;
+    margin-top: 17px!important;
+    /* inline-size: 20px; */
+    float: left;
+    width: 214px;
+    color: white;
+}
+
+.gain_loss_adjust {
+    margin-top: -2px!important;
+}
+
+.pdf_print {
+    float: right;
+    margin-top: 16px;
+    position: relative;
+    z-index: 999999999;
+}
+
+.csv_export_all {
+    float: right;
+    margin-top: 16px;
+    position: relative;
+    z-index: 999999999;
+    margin-right: 30px;
+}
+
+.card {
+    border-radius: 0px;
+}
+
+.collapsible-header_country {
+    margin: 0px!important;
+}
+
+.card-title_country {
+    float: left;
+}
+
+.collapsible-header_country {
+    background-color: #0155bd;
+}
+
+.sidenav {
+    height: auto!important;
+}
+
+.country_li .collapsible-body {
+    display: none;
+}
+
+.sidenav {
+    top: 64px;
+    width: 40%;
+    /* height: 100%!important; */
+    height: auto!important;
+    /* background-color: #7bd5ef; */
+}
+
+@media only screen and (max-width: 601px) {
+    .card .card-title {
+        font-size: 15x;
+        font-weight: 300;
+    }
+    .sidenav {
+        top: 350px!important;
+        width: 100%!important;
+        height: 350px!important;
+        /* background-color: #7bd5ef; */
+    }
+    #slide-out>ul>li.country_li.main_li>div.card.horizontal.collapsible-header.collapsible-header_country {
+        position: sticky!important;
+        top: 0px!important;
+    }
+}
+
+@media only screen and (max-width: 601px) {
+    .sidenav {
+        width: 65%;
+    }
+}
+
+
+/* ::-webkit-scrollbar {
+    width: 4px;
+} */
+
+
+/* Track */
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 0px grey;
+    border-radius: 4px;
+}
+
+
+/* Handle */
+
+
+/* ::-webkit-scrollbar-thumb {
+    background: #1e73c1;
+    ;
+    border-radius: 4px;
+} */
+
+
+/* Handle on hover */
+
+::-webkit-scrollbar-thumb:hover {
+    background: #fff;
+}
+
+.sidenav .card.collapsible-header {
+    /* background-color: #041620!important; */
+    background-color: #415261 !important;
+    margin: 0 0;
+    line-height: 0px!important;
+    color: #ffffff;
+}
+
+nav {
+    /* background-color: #061b27!important; */
+    pointer-events: auto!important;
+    -webkit-box-shadow: 0 8px 17px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)!important;
+    box-shadow: 0 8px 17px 2px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2)!important;
+}
+
+.layer_icon_large {
+    font-size: 30px!important;
+}
+
+.main_li {
+    margin-bottom: 2px;
+}
+
+input:not([type]):focus:not([readonly]),
+input[type=text]:not(.browser-default):focus:not([readonly]),
+input[type=password]:not(.browser-default):focus:not([readonly]),
+input[type=email]:not(.browser-default):focus:not([readonly]),
+input[type=url]:not(.browser-default):focus:not([readonly]),
+input[type=time]:not(.browser-default):focus:not([readonly]),
+input[type=date]:not(.browser-default):focus:not([readonly]),
+input[type=datetime]:not(.browser-default):focus:not([readonly]),
+input[type=datetime-local]:not(.browser-default):focus:not([readonly]),
+input[type=tel]:not(.browser-default):focus:not([readonly]),
+input[type=number]:not(.browser-default):focus:not([readonly]),
+input[type=search]:not(.browser-default):focus:not([readonly]),
+textarea.materialize-textarea:focus:not([readonly]) {
+    border-bottom: 1px solid #094264;
+    -webkit-box-shadow: 0 1px 0 0 #094264;
+    box-shadow: 0 1px 0 0 #094264
+}
+
+.input-field .prefix.active {
+    color: #094264
+}
+
+.mapboxgl-map {
+    background-color: #041620;
+}
+
+.row.summary,
+.row.summary .row {
+    margin-bottom: 0px!important;
+    color: #f6f6f6;
+}
+
+.matrix_description,
+.other_description {
+    /* display: none!important; */
+}
+
+.index_type_description {
+    bottom: 26px;
+    position: relative;
+    font-size: 0.9em!important;
+    font-style: oblique;
+}
+
+.indicators_list {
+    color: white;
+}
+
+.indicators_list .on {
+    background-color: #e8b10b!important;
+}
+
+.indicators_list .off {
+    background-color: #6a777b;
+}
+
+.indicators_list>div:hover {
+    cursor: pointer;
+    /* border-bottom: 2px solid black; */
+}
+
+.indicators_list div:hover {
+    cursor: pointer;
+    background-color: #8c9fb1;
+}
+
+.indicators_list.list .row {
+    /* border-bottom: 0.5px solid #061f2d;
+    margin-bottom: 10px!important;
+    padding-bottom: 10px!important; */
+    margin-bottom: 0px!important;
+}
+
+.sidenav .subheader {
+    background-color: #f5deb300;
+    padding: 4px;
+    color: #0154bd!important;
+    font-size: 15px;
+    line-height: 15px;
+    text-align: inherit;
+    border-bottom: 1px solid #0154bd;
+    padding-left: 10px;
+}
+
+.nodata_av {
+    margin-left: 13px;
+}
+
+.legend>div:nth-child(2)>div {
+    margin-bottom: 13px;
+}
+
+.legend>div:nth-child(2)>div>p>em {
+    margin-left: 27px;
+}
+
+.show_hide_table {
+    margin-left: 18px;
+    background-color: #c7860e;
+    width: 36px;
+    padding: 5px;
+    box-shadow: 0 6px 11px rgba(0, 0, 0, 0.03), 0 3px 4px rgba(0, 0, 0, 0.09);
+    margin-top: -16px;
+    border-radius: 20px;
+}
+
+.mangroves_li {
+    background-color: #061b27;
+    color: #ffffff;
+}
+
+.country_li {}
+
+#slide-out>ul>li.country_li.main_li>div.card.horizontal.collapsible-header.collapsible-header_country {
+    text-align: center;
+    color: #ffffff;
+    box-shadow: none!important;
+    border-bottom: none!important;
+}
+
+.light_mede_button.daylight {
+    color: '#ffffff';
+}
+
+.light_mede_button.nightlight {
+    color: '#00aced';
+}
+
+.light_mede_button {
+    /* margin-right: 35px;
+    margin-top: -2px; */
+}
+
+.card-title_country {
+    margin-top: 0px;
+    margin-bottom: -15px!important;
+    line-height: 58px!important;
+}
+
+.sidenav {
+    /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23); */
+}
+
+#slide-out>ul>li.country_li.main_li>div.collapsible-body>ul:nth-child(2)>li>div:nth-child(2)>div.col.s8.multiple_lines>p:nth-child(2) {
+    position: absolute;
+}
+
+.list p {
+    margin-top: 10px!important;
+}
+
+.show.on {
+    color: #1170e5!important;
+    opacity: 1!important;
+}
+
+i.left {
+    float: left;
+    margin-right: 8px!important;
+}
+
+nav .brand-logo {
+    position: RELATIVE!important;
+    color: #fff;
+    display: inline-block;
+    font-size: 2.1rem;
+    padding: 0;
+    z-index: 99!important;
+    FLOAT: right!important;
+}
+
+body>nav>div>form>ul.left>li>p {
+    font-size: 1.7rem;
+    margin-top: -15px;
+    /* color: white; */
+    color: white;
+    margin-left: 106px;
+}
+
+body>nav>div>form>ul.left>li>a>img {
+    width: 70px;
+    /* height: 10px; */
+    margin-top: 10px;
+}
+
+.jrc-logo {
+    height: 10px;
+}
+
+body>nav>div>a>img {
+    width: 72px;
+    MARGIN-RIGHT: 13PX;
+    MARGIN-TOP: 13PX;
+}
+
+.dropdown-trigger {}
+
+.dropdown-content li>a,
+.dropdown-content li>span {
+    font-size: 16px;
+    color: #00aced!important;
+    display: block;
+    line-height: 22px;
+}
+
+.dropdown-content {
+    /* hack-around: transparent */
+    background-color: #a4a2a200 !important;
+    /* background-color: white!important; */
+    margin: 0;
+    max-height: 100px!important;
+    min-width: 100px;
+    overflow-y: auto;
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+    margin-top: 66px!important;
+}
+
+nav ul a:hover {
+    background-color: rgb(3, 22, 34)!important;
+}
+
+.modal-footer>a {
+    color: white;
+}
+
+.modal-header {
+    max-height: 0px!important;
+}
+
+.modal {
+    background-color: #607d8b !important;
+    color: white!important;
+    max-height: 85%!important;
+    top: 5%important;
+}
+
+.modal .center>div {
+    padding: 15px;
+}
+
+.modal .modal-footer {
+    background-color: #6795bf !important
+}
+
+.icon_info {
+    /* color: #0155bd; */
+}
+
+.modal_li>a {
+    padding: 0px!important;
+}
+
+.text_color_bad_percentage {
+    font-size: larger;
+    color: #ffb500;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+.title {
+    font-size: larger;
+}
+
+#line_color_bad_percentage {
+    font-size: 11px;
+    margin-top: 10px;
+    margin-bottom: -18px;
+    padding-top: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: rgba(255, 181, 0, 0.5)!important;
+    border: 1px solid rgba(255, 181, 0, 0.48);
+}
+
+#line_color_good_percentage {
+    font-size: 11px;
+    margin-top: 10px;
+    margin-bottom: -18px;
+    padding-top: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: rgba(8, 111, 238, 0.5)!important;
+    border: 1px solid #086fee6b;
+}
+
+.lake_quality_events {
+    background: #0155bd!important;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 20px;
+    width: 57px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    font-size: larger;
+    color: white!important;
+}
+
+.lake_quality_lakes {
+    background: #0155bd!important;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 20px;
+    width: 57px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    font-size: larger;
+    color: white!important;
+}
+
+#country_profile>table {
+    background-color: #061b27;
+    margin-left: 0px!important;
+    font-size: larger;
+    color: #ffffff;
+    border-bottom: 6px solid #041620;
+}
+
+#separator {
+    border-bottom: 7px solid #041620;
+    width: 100%;
+    height: 20px;
+    position: relative;
+    display: block;
+}

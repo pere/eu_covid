@@ -1,0 +1,169 @@
+/*------------------------------------------
+  Responsive Grid Media Queries - 1280, 1024, 768, 480
+   1280-1024   - desktop (default grid)
+   1024-768    - tablet landscape
+   768-480     - tablet 
+   480-less    - phone landscape & smaller
+--------------------------------------------*/
+
+@media all and (min-width: 1024px) and (max-width: 1280px) {}
+
+@media all and (min-width: 768px) and (max-width: 1024px) {}
+
+@media all and (min-width: 480px) and (max-width: 768px) {}
+
+@media all and (max-width: 480px) {}
+
+
+/*------------------------------------------
+  Foundation Media Queries 
+   http://foundation.zurb.com/docs/media-queries.html
+--------------------------------------------*/
+
+
+/* Small screens - MOBILE */
+
+@media only screen {}
+
+
+/* Define mobile styles - Mobile First */
+
+@media only screen and (max-width: 40em) {}
+
+
+/* max-width 640px, mobile-only styles, use when QAing mobile issues */
+
+
+/* Medium screens - TABLET */
+
+@media only screen and (min-width: 40.063em) {
+    /* nav 
+    {
+        background-color: yellow!important
+    } */
+}
+
+
+/* min-width 641px, medium screens */
+
+@media only screen and (min-width: 40.063em) and (max-width: 64em) {
+    /* small desktop screen */
+    /* nav 
+    {
+        background-color: blue!important
+    } */
+}
+
+
+/* min-width 641px and max-width 1024px, use when QAing tablet-only issues */
+
+
+/* Large/medium screens - DESKTOP */
+
+@media only screen and (min-width: 64.063em) {
+    /* nav 
+    {
+        background-color: pink!important;
+
+    } */
+    .sidenav {
+        /* height: 65%!important; */
+        width: 25%!important;
+    }
+    /* .heatmap{
+        height: 120px;
+    } */
+    body,
+    html {
+        line-height: 18px!important;
+        font-size: 13px;
+    }
+    .status_list li {
+        /* line-height: 18px!important; */
+    }
+}
+
+
+/* min-width 1025px, large screens */
+
+@media only screen and (min-width: 64.063em) and (max-width: 90em) {
+    /* nav 
+    {
+        background-color: red!important
+    } */
+    .sidenav {
+        width: calc(25%) !important;
+    }
+}
+
+
+/* min-width 1024px and max-width 1440px, use when QAing large screen-only issues */
+
+
+/* XLarge screens */
+
+
+/* @media only screen and (min-width: 90.063em) {
+
+    nav 
+    {
+        background-color: white!important
+    }
+    .sidenav {
+        top: 75px !important;
+        left: 5px !important;
+        
+        height: calc(85%) !important;
+        width: calc(25%) !important;
+    }
+
+
+ }  */
+
+nav {
+    /* background-color: #72a3b0 !important; */
+    background-color: #5e6973!important;
+}
+
+
+/* min-width 1441px, xlarge screens */
+
+@media only screen and (min-width: 90.063em) and (max-width: 120em) {
+    /* my both screens */
+    .sidenav {
+        top: 75px !important;
+        left: 5px !important;
+        height: calc(85%) !important;
+        width: calc(25%) !important;
+    }
+    .row.summary .s3 {
+        /* font-size: 1rem; */
+        text-align: center;
+        color: #316863;
+        font-weight: 600;
+    }
+    .status_list li {
+        line-height: 38px!important;
+    }
+    .status_list li {
+        /* line-height: 28px !important; */
+    }
+    .indicator_title {
+        font-size: 0.8em !important;
+    }
+    #matrix {
+        /* margin-top: 100px; */
+        /* height: 180px; */
+    }
+}
+
+
+/* min-width 1441px and max-width 1920px, use when QAing xlarge screen-only issues */
+
+
+/* XXLarge screens */
+
+@media only screen and (min-width: 120.063em) {}
+
+
+/* min-width 1921px, xlarge screens */
