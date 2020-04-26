@@ -17,7 +17,7 @@
 
     <link rel="stylesheet" href="./new_css_2/covid.css">
     <link rel="stylesheet" href="./css/materialize.min.css">
-    <link rel="stylesheet" href="./new_css_2/energy.css">
+    <link rel="stylesheet" href="./new_css_2/extra.css">
 
     <script src='//unpkg.com/d3@5.0.0/dist/d3.min.js'></script>
     <script src='./data/model_results.js'></script>
@@ -65,6 +65,7 @@
                 <p>Then, we created and trained a Linear Regression Model for each region. Trained models are then used for predicting the end of the epidemic, expressed by the number of days remaining before Epidemic Indicator is expected to be 0. Of course,
                     not all regional models performed the same. Some regions have clear recovering trends (i.e. Lombardia), while others seem to have a less linear evolution (i.e. Lombardia). For this reason, every model also returns a performance score,
                     the coefficient of determination R² of the prediction. An R² of 1 indicates that the regression predictions perfectly fit the data. therefore the closer the value gets to 1, the more we can trust our model and its predictions</p>
+                More technical information about the model can be found at <a href="https://github.com/Andrampa/covid_analysis/blob/master/Modeling_COVID19_epidemic_regional_breakdown.ipynb" target="_blank">this link</a>
 
             </div>
 
@@ -150,17 +151,16 @@
             </li>
 
 
-            <li class='country_li main_li'>
-                <div class="card horizontal collapsible-header country">
+            <li class='province_li main_li'>
+                <div class="card horizontal collapsible-header province">
                     <div class="card-image">
 
                     </div>
                     <div class="card-stacked">
                         <div class="card-content">
-                            <span class="card-title card-title_country">Regional data</span>
-                            <!-- <p class="country_name_header"></p> -->
-                            <div><i onclick="window.print()" class="material-icons pdf_print">picture_as_pdf</i></div>
-                            <div><i class="material-icons csv_export_all">cloud_download</i></div>
+                            <span class="card-title card-title_povince">Province data</span>
+
+
                         </div>
                     </div>
                 </div>
@@ -168,9 +168,9 @@
                 <div class="collapsible-body">
 
                     <div class="row">
-                        <div class="col s12 profile_tool_info">
-                            STILL NO INFO
-                        </div>
+                        <div class="col s12">At province level, only parameter <b>total cases (current + recovered + deaths)</b> is available</div>
+
+                        <div class="col s12"><a href="#!" class="modal-close waves-effect waves-green btn-small left plot_prov">Map it!<i class="material-icons">public</i></a></div>
                     </div>
 
                 </div>
@@ -194,9 +194,74 @@
 
     <script src="./new_app_js_2/covid_attach_ev.js"></script>
     <script>
+        function get_p_name(prop) {
+
+            switch (prop) {
+
+
+                case 'remaining_days':
+                    var txt = 'Model days prediction';
+                    break;
+                case 'model_score':
+                    var txt = 'Model score (0 to 1)';
+                    break;
+                case 'ricoverati_con_sintomi':
+                    var txt = 'Hospitalized with symptoms';
+                    break;
+                case 'terapia_intensiva':
+                    var txt = 'Intensive Care';
+                    break;
+                case 'totale_ospedalizzati':
+                    var txt = 'Total hospitalized';
+                    break;
+                case 'isolamento_domiciliare':
+                    var txt = 'Self-quarantine at home';
+                    break;
+                case 'totale_positivi':
+                    var txt = 'Total positive cases (currently positive)';
+                    break;
+                case 'variazione_totale_positivi':
+                    var txt = 'total variation of positive cases';
+                    break;
+                case 'nuovi_positivi':
+                    var txt = 'New positive cases';
+                    break;
+
+                case 'dimessi_guariti':
+                    var txt = 'Recovered Dismissed from Hospital';
+                    break;
+                case 'deceduti':
+                    var txt = 'Deaths';
+                    break;
+                case 'totale_casi':
+                    var txt = 'current infected+recovered+deaths';
+                    break;
+                case 'tamponi':
+                    var txt = 'Number of tests';
+                    break;
+                case 'casi_testati':
+                    var txt = 'Number of people tested';
+                    break;
+                default:
+                    var txt = ''
+                    break;
+            }
+            return txt;
+        }
+
+        function projectPoint(lon, lat) {
+            var point = map.project(new mapboxgl.LngLat(lon, lat));
+            this.stream.point(point.x, point.y);
+        }
+
+        var transform = d3.geoTransform({
+            point: projectPoint
+        });
         var map;
 
-        var this_app = {};
+        var this_app = {
+            provinces: false
+        };
 
 
         this_app.throttle = function(fn, threshhold, scope) {
@@ -245,11 +310,10 @@
                     } else {
                         var val = _t[p];
                     }
-                    html += '<div class="row"><div class="col s8">' + p + ' </div><div class="col s4"> ' + val + '</div></div>';
+                    html += '<div class="row"><div class="col s8">' + get_p_name(p) + ' </div><div class="col s4"> ' + val + '</div></div>';
                 }
             }
-            //html += '</div>'
-            console.log(html)
+
 
             //alert($('.legend_control_container').length)
             $('.map_popup_control_container').append(html);
@@ -318,15 +382,11 @@
 
         })
 
+        //d3.json("./data/covid_geo_province.js").then
         d3.json("./data/regioni.json").then(mapDraw);
 
 
         function mapDraw(geojson) {
-
-
-
-
-
 
             class map_legend_control2 {
                 onAdd(map) {
@@ -385,21 +445,6 @@
             //  })[0];
 
             $('.map_legend_control_container,.map_popup_control_container').addClass('mapboxgl-ctrl')
-                //append('<div class="mapboxgl-ctrl mapboxgl-ctrl-group legend_control_container></div>');
-                // var html = ''
-                // for (var p in _t) {
-                //     html += '<div>' + p + ' : ' + _t[p] + '</div>';
-                // }
-                // //html += '</div>'
-                // console.log(html)
-                // setTimeout(function() {
-                //     //alert($('.legend_control_container').length)
-                //     $('.map_popup_control_container').append(html);
-
-            //     //  $('.map_popup_control_container,.mapboxgl-ctrl-bottom-right').show();
-            // }, 300)
-
-
 
 
             map.on("mousemove", function(e) {
@@ -420,23 +465,32 @@
 
             })
 
+            //    create_geom()
+
+
             function projectPoint(lon, lat) {
                 var point = map.project(new mapboxgl.LngLat(lon, lat));
                 this.stream.point(point.x, point.y);
             }
 
-            var container = map.getCanvasContainer()
-            var svg = d3.select(container).append("svg");
-            var gaul_1;
-
-
+            var container = map.getCanvasContainer();
             var transform = d3.geoTransform({
                 point: projectPoint
             });
+            var svg = d3.select(container).append("svg");
+
             var path = d3.geoPath().projection(transform);
 
-
-            var featureElement = svg.selectAll("path")
+            //  console.log(covid_geo_province[0])
+            /*
+            "code_reg": 13,
+        "name_reg": "Abruzzo",
+        "code_prov": 69,
+        "name_prov": "Chieti",
+        "sigla_provincia": "CH",
+        */
+            console.log(geojson.features)
+            var featureElement = svg.selectAll("path.region")
                 .data(geojson.features)
                 .enter()
                 .append("path")
@@ -451,37 +505,44 @@
                 })
                 .on('click', function(d) {
                     console.log(d)
+                    if (this_app.provinces == true)
+                        return false
+
                     var path_name = d.properties.den_reg;
 
 
                 })
                 .on('mouseenter', function(d) {
+                    if (this_app.provinces == false) {
+                        //return false
+                        $('.map_popup_control_container.mapboxgl-ctrl').show();
+                        $('.map_legend_control_container.mapboxgl-ctrl').hide();
 
-                    $('.map_popup_control_container.mapboxgl-ctrl').show();
-                    $('.map_legend_control_container.mapboxgl-ctrl').hide();
+                        $('.mapboxgl-popup').show();
+                        console.info('mouseenter geo path ' + d.properties.code_reg)
+                        mouseovered_path._data = d.properties;
+                        mouseovered_path.code = d.properties.code_reg;
+                        var t = '#map path.region.code_' + d.properties.code_reg;
 
-                    $('.mapboxgl-popup').show();
-                    console.info('mouseenter geo path ' + d.properties.code_reg)
-                    mouseovered_path._data = d.properties;
-                    mouseovered_path.code = d.properties.code_reg;
-                    var t = '#map path.region.code_' + d.properties.code_reg;
+                        app.mouseover_prev_color = d3.select(t).attr('fill');
+                        app.mouseover_prev_opacity = d3.select(t).attr('opacity');
+                        console.info(d3.selectAll('.region.code_' + d.properties.code_reg))
+                        d3.selectAll(t)
+                            .attr('fill', '#9acd32')
+                            // .transition().delay(50)
+                            .attr('fill', '#ffeb3b')
+                            .attr('opacity', .8)
 
-                    app.mouseover_prev_color = d3.select(t).attr('fill');
-                    app.mouseover_prev_opacity = d3.select(t).attr('opacity');
-                    console.info(d3.selectAll('.region.code_' + d.properties.code_reg))
-                    d3.selectAll(t)
-                        .attr('fill', '#9acd32')
-                        // .transition().delay(50)
-                        .attr('fill', '#ffeb3b')
-                        .attr('opacity', .8)
-
-                    populate_map_popup_control_container(d.properties.code_reg, d)
-
+                        populate_map_popup_control_container(d.properties.code_reg, d)
+                    }
 
 
 
                 })
                 .on('mouseleave', function(d) {
+                    if (this_app.provinces == true)
+                        return false
+
                     $('.map_popup_control_container').empty();
 
                     $('.map_popup_control_container.mapboxgl-ctrl').hide();
@@ -508,17 +569,34 @@
 
 
                     $('.mapboxgl-popup').hide();
-                })
+                });
 
+            //  console.info(d3.select(container).select("svg"))
 
-            function update() {
+            app.update = function() {
+                console.warn('updateing geom')
+                    //featureElement.attr("d", path)
                 mouseovered_path.code = null;
-                featureElement.attr("d", path);
+                if (this_app.provinces == false) {
+                    console.log('prov false')
+                    featureElement.attr("d", path)
+                        //.attr("opacity", 1);
+                        //.attr('opacity', 1)
+                    svg.selectAll("path.province").attr("opacity", 0);
+                }
+                //alert(provinceElement.size())
+                if (this_app.provinces == true) {
+                    provinceElement = svg.selectAll("path.province")
+                    provinceElement.attr("d", path)
+                    provinceElement.attr("opacity", 0.6);
+                    //.attr('opacity', 1)
+                    featureElement.attr("opacity", 0);
+                }
 
             }
 
             //
-            map.on("viewreset", update);
+            map.on("viewreset", app.update());
             map.on("movestart", function() {
                 svg.classed("hidden", true);
             });
@@ -526,12 +604,12 @@
                 svg.classed("hidden", true);
             });
             map.on("moveend", function() {
-                update();
+                app.update();
                 svg.classed("hidden", false);
             })
 
 
-            update();
+            app.update();
 
         }
 
@@ -550,7 +628,8 @@
                         if (this_app.stats_to_param.indexOf(prop) !== -1) {
                             params_to_arr_index.push(prop);
                             //  options += '<option value="' + prop + '">' + prop + '</option> ';
-                            btn_html += '<div class="row"><a param="' + prop + '" class="waves-effect waves-light btn btn-small">' + prop + '</a></div>';
+
+                            btn_html += '<div class="row"><a param="' + prop + '" class="waves-effect waves-light btn btn-small">' + get_p_name(prop) + '</a></div>';
 
                             d[prop + '_arr'] = [];
                             memo.data.push({
@@ -571,7 +650,7 @@
                     btn_html += '</div>'
                         // $('.map_legend_control_container').append(s);
                     var color_html = '<div class="color_btn">';
-                    color_html += '<div class="row param_title">You can change the scale color (green by default)</div>';
+                    color_html += '<div class="row param_title">You can change the scale color</div>';
                     color_html += '<div class="row"><a color_param="green" class="waves-effect waves-light btn btn-small clicked">Green</a></div>';
                     color_html += '<div class="row"><a color_param="yellowish" class="waves-effect waves-light btn btn-small">Yellow-red</a></div>';
                     color_html += '<div class="row"><a color_param="blue" class="waves-effect waves-light btn btn-small">Blue</a></div>';
@@ -688,220 +767,170 @@
         }
         this_app.update_geom_by_model_rank = function() {
 
-                $('#lollipop_wrapper').hide();
-                app_state.initial_state = false;
-                var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
+            $('#lollipop_wrapper').hide();
+            app_state.initial_state = false;
+            this_app.provinces = false;
+            //d3.selectAll("path.province").attr("opacity", 0);
 
-                var _this = reduced.data.filter(function(d) {
-                    return d.prop_name == param;
-                })[0];
-                var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
+            app.update();
+            $('.plot_prov').removeClass('clicked')
+            var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
 
-                this_app.plotted_params['active_param'] = param;
+            var _this = reduced.data.filter(function(d) {
+                return d.prop_name == param;
+            })[0];
 
-                switch (color) {
-                    case 'green':
-                        var c_arr = ['#a5ecd8', '#04956c'];
-                        break;
+            var _this_model_score = reduced.data.filter(function(d) {
+                return d.prop_name == 'model_score';
+            })[0];
+            var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
 
-                    case 'blue':
-                        var c_arr = ['#9de0e8', '#0f2fe2'];
-                        break;
-                    case 'yellowish':
-                        var c_arr = ['#ffeb3b', '#ff5722'];
-                        break;
-                    case 'redish':
-                        var c_arr = ['#e37ff5', '#f30858'];
-                        break;
+            this_app.plotted_params['active_param'] = param;
 
-                    default:
-                        break;
+            switch (color) {
+                case 'green':
+                    var c_arr = ['#a5ecd8', '#04956c'];
+                    break;
 
-                }
-                this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
-                    .interpolate(d3.interpolateHcl)
-                    .range(c_arr);
+                case 'blue':
+                    var c_arr = ['#9de0e8', '#0f2fe2'];
+                    break;
+                case 'yellowish':
+                    var c_arr = ['#ffeb3b', '#ff5722'];
+                    break;
+                case 'redish':
+                    var c_arr = ['#e37ff5', '#f30858'];
+                    break;
 
-                console.log(_this);
-                var sorted = _this.arr_data_codes.sort(sort_by_value(param));
-                console.log(sorted)
-
-                $('#sel_param_region,.sel_param_name').empty();
-                $('.sel_param_name').text(param);
-
-                var $region_append = $('#sel_param_region');
-
-                var html = '';
-                sorted.forEach(function(d, i) {
-
-                    var color = this_app.rankScale(d.value);
-                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div>';
-                    if (param !== 'model_score' && param !== 'remaining_days')
-                        html += '<div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div>';
-
-                    html += '</div>';
-                    //<i class="material-icons i_highlight">highlight</i>
-                });
-
-                $region_append.html(html);
-
-                if ($('.sidenav-trigger').hasClass('on') == false) {
-                    console.warn('sidenav not visible')
-                    $('.sidenav-trigger i').trigger('click');
-
-                }
-                if ($('.indicators_li .collapsible-body').is(':visible') == false) {
-                    $('.indicators_li .collapsible-header').trigger('click');
-                }
-
-                $('.indiv_region_container').on('mouseover', function(e) {
-
-                        $(this).addClass('hovered');
-                        var code_reg = $(this).attr('code_reg');
-                        var t = '#map path.region.code_' + code_reg;
-                        d3.select(t)
-                            .dispatch('mouseenter');
-
-                        populate_map_popup_control_container(code_reg)
-                            // if ($(e.target).hasClass('i_highlight')) {
-
-                        // }
-                    })
-                    .on('mouseout', function(e) {
-                        //console.log($(this))
-                        $(this).removeClass('hovered');
-                        var code_reg = $(this).attr('code_reg');
-                        var t = '#map path.region.code_' + code_reg;
-                        d3.select(t)
-                            .dispatch('mouseleave');
-                    })
-                    .on('click', function(e) {
-
-
-                        if ($(e.target).hasClass('i_clock')) {
-
-
-                            if ($(e.target).hasClass('clicked')) {
-                                //    alert('clicked')
-                                this_app.plotted_params.code_reg = null;
-                                $(e.target).removeClass('clicked');
-                                $('#lollipop_wrapper').hide();
-                            } else {
-                                $('.i_clock.clicked').removeClass('clicked');
-                                var code_reg = $(this).attr('code_reg');
-                                $(e.target).addClass('clicked');
-                                this_app.plotted_params.code_reg = code_reg;
-                                // this_app.plotted_params.active_param=code_reg;
-                                var region_name = $(this).find('.a_name_container').text()
-                                this_app.t_chart(this_app.plotted_params.active_param, code_reg, classif_temp_data, region_name);
-                            }
-
-
-                        }
-                    })
-                    //$('#sel_param_region')
-
-
-                var map_paths = d3.selectAll("#map path.region");
-                //alert(map_paths.size())
-                //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
-
-                map_paths
-                    .transition()
-                    .duration(1250)
-                    .delay(function(d, i) {
-                        return i * 40;
-                    })
-                    .attr("delay", function(d, i) {
-                        return 100 * i
-                    })
-                    .attr('fill', function(d, i) {
-                        // return get_rank_color(d.properties.code,_this[i],i)
-                        // app_data.lollipop_obj.rank_code)
-
-                        //  console.info(d);
-                        /*
-                        properties:
-cod_rip: 4
-code_reg: 17
-den_reg: "Basilicata"
-*/
-                        //console.log(_this)
-                        /*
-                        {prop_name: "deceduti", arr: Array(20), min_max: {…}}
-arr: (20) [276, 24, 76, 327, 3204, 246, 370, 1022, 12740, 845, 19, 2559, 362, 96, 208, 705, 381, 61, 127, 1181]
-min_max: {max: 12740, min: 19}
-prop_name: "deceduti"
-*/
-
-                        var pos = reduced.codes.indexOf(d.properties.code_reg);
-                        var val = _this['arr'][pos];
-                        var color = this_app.rankScale(val);
-                        return color;
-                    })
-                    .attr("stroke", "#fbfdfc")
-                    .attr('opacity', 1)
-
+                default:
+                    break;
 
             }
-            /*
-            //the result is kept as classif_temp_data, as it does not work if directly..????
-            var codes_arr = [];
-            var codes_obj = []
-            temp_dati_regione.forEach(function(d) {
-                if (codes_arr.indexOf(d.code_reg) == -1) {
-                    codes_arr.push(d.code_reg);
-                    codes_obj.push({
-                        code_reg: d.code_reg,
-                        data_param_values: []
-                    })
+            this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
+                .interpolate(d3.interpolateHcl)
+                .range(c_arr);
 
-                }
-            })
+            console.log(_this);
+            var sorted = _this.arr_data_codes.sort(sort_by_value(param));
+            console.log(sorted)
 
-            var region_names_arr = [];
-            var arrs_arr = [];
-            var temp_reduced = temp_dati_regione.reduce(function(memo, d, i) {
+            $('#sel_param_region,.sel_param_name').empty();
+            $('.sel_param_name').text(get_p_name(param));
 
-                if (i == 0) {
-                    var keyNames = Object.keys(d);
-                    console.warn(keyNames)
+            var $region_append = $('#sel_param_region');
 
-                    keyNames.forEach(function(prop, i2) {
-                        if (this_app.stats_to_param.indexOf(prop) !== -1) {
-                            params_to_arr_index.push(prop);
-                            console.info(codes_obj)
-                            var x = {}
-                            x.prop_name = prop + '_arr';
-                            
-                            arrs_arr.push({
-                                    prop: prop,
-                                    arr: []
-                                })
-                           
-                        }
-                       
+            var html = '';
+            sorted.forEach(function(d, i) {
 
-                    })
+                var color = this_app.rankScale(d.value);
+                html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div>';
+                if (param !== 'model_score' && param !== 'remaining_days')
+                    html += '<div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div>';
 
-                }
-                return memo
-            }, {
-                codes: [],
-                region_names: [],
-                arr_data_temp: [],
-                data: []
+                html += '</div>';
+                //<i class="material-icons i_highlight">highlight</i>
             });
-            console.log(arrs_arr)
 
-            codes_obj.forEach(function(d) {
-                for (var p in arrs_arr) {
-                    console.log(p)
-                    d.data_param_values.push(arrs_arr[p]);
-                }
-            })
-            //console.log(JSON.stringify(codes_obj))
-            */
+            $region_append.html(html);
+
+            if ($('.sidenav-trigger').hasClass('on') == false) {
+                console.warn('sidenav not visible')
+                $('.sidenav-trigger i').trigger('click');
+
+            }
+            if ($('.indicators_li .collapsible-body').is(':visible') == false) {
+                $('.indicators_li .collapsible-header').trigger('click');
+            }
+
+            $('.indiv_region_container').on('mouseover', function(e) {
+
+                    if (this_app.provinces == true)
+                        return false
+
+                    $(this).addClass('hovered');
+                    var code_reg = $(this).attr('code_reg');
+                    var t = '#map path.region.code_' + code_reg;
+                    d3.select(t)
+                        .dispatch('mouseenter');
+
+                    populate_map_popup_control_container(code_reg)
+                        // if ($(e.target).hasClass('i_highlight')) {
+
+                    // }
+                })
+                .on('mouseout', function(e) {
+
+                    if (this_app.provinces == true)
+                        return false
+                            //console.log($(this))
+                    $(this).removeClass('hovered');
+                    var code_reg = $(this).attr('code_reg');
+                    var t = '#map path.region.code_' + code_reg;
+                    d3.select(t)
+                        .dispatch('mouseleave');
+                })
+                .on('click', function(e) {
+                    if (this_app.provinces == true)
+                        return false
+
+                    if ($(e.target).hasClass('i_clock')) {
+
+
+                        if ($(e.target).hasClass('clicked')) {
+                            //    alert('clicked')
+                            this_app.plotted_params.code_reg = null;
+                            $(e.target).removeClass('clicked');
+                            $('#lollipop_wrapper').hide();
+                        } else {
+                            $('.i_clock.clicked').removeClass('clicked');
+                            var code_reg = $(this).attr('code_reg');
+                            $(e.target).addClass('clicked');
+                            this_app.plotted_params.code_reg = code_reg;
+                            // this_app.plotted_params.active_param=code_reg;
+                            var region_name = $(this).find('.a_name_container').text()
+                            this_app.t_chart(this_app.plotted_params.active_param, code_reg, classif_temp_data, region_name);
+                        }
+
+
+                    }
+                })
+                //$('#sel_param_region')
+            var map_paths = d3.selectAll("#map path.region");
+            //alert(map_paths.size())
+            //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
+
+            map_paths
+                .transition()
+                .duration(1250)
+                .delay(function(d, i) {
+                    return i * 40;
+                })
+                .attr("delay", function(d, i) {
+                    return 100 * i
+                })
+                .attr('fill', function(d, i) {
+
+                    var pos = reduced.codes.indexOf(d.properties.code_reg);
+                    var val = _this['arr'][pos];
+                    // console.log(_this_model_score)
+                    // console.log(_this_model_score['arr'][pos])
+                    // console.warn(param)
+                    if (param == 'remaining_days' && _this_model_score['arr'][pos] < 0.85) {
+
+                        var color = '#d9d3d3';
+                    } else {
+                        var color = this_app.rankScale(val);
+                    }
+
+
+                    return color;
+                })
+                .attr("stroke", "#fbfdfc")
+                .attr('opacity', 1)
+
+
+        }
+
         console.warn(classif_temp_data)
         for (var i = 0; i < temp_dati_regione.length - 1; i++) {
             var d = temp_dati_regione[i];
@@ -942,162 +971,125 @@ prop_name: "deceduti"
 
         this_app.t_chart = function(param, code_reg, data, name) {
 
-            if ($('#t_chart svg').length > 0) {
-                $('#t_chart svg').remove();
-            }
-            $('.lollipop_legend_description').text(this_app.plotted_params.active_param + ' evolution in ' + name)
+                if ($('#t_chart svg').length > 0) {
+                    $('#t_chart svg').remove();
+                }
 
-            var mx_w_h = $('#map').height() / 6;
-            $('#lollipop_wrapper').height(mx_w_h + $('nav').height());
-            var map_w = $('#map').width();
+                $('.lollipop_legend_description').html('<span class="title">' + get_p_name(this_app.plotted_params.active_param) + '</span> evolution in ' + name)
 
-            var diff_h = $('#map').height() - mx_w_h - $('nav').height();
-            var diff_w = map_w - (map_w / 3);
+                var mx_w_h = $('#map').height() / 6;
+                $('#lollipop_wrapper').height(mx_w_h + $('nav').height());
+                var map_w = $('#map').width();
 
-            $('#lollipop_wrapper').css('top', diff_h - 5)
-                .css('width', diff_w + 'px')
-                //half of half map width!!
-                .css('margin-left', (map_w / 8));
+                var diff_h = $('#map').height() - mx_w_h - $('nav').height();
+                var diff_w = map_w - (map_w / 3);
 
-            $('#lollipop_wrapper').show();
-            $('#lollipop_wrapper').css('display', 'block').show();
+                $('#lollipop_wrapper').css('top', diff_h - 5)
+                    .css('width', diff_w + 'px')
+                    //half of half map width!!
+                    .css('margin-left', (map_w / 8));
 
-            var margin = {
-                top: 0,
-                right: 5,
-                bottom: 5,
-                left: 5
-            };
-            width = diff_w; // - margin.left - margin.right;
+                $('#lollipop_wrapper').show();
+                $('#lollipop_wrapper').css('display', 'block').show();
 
-            // append the svg object to the body of the page
-            var t_svg = d3.select("#t_chart")
-                .append("svg")
-                .attr("width", width) // + margin.left + margin.right)
-                .attr("height", width - 35) // + $('nav').height())
-                .append("g")
-                .attr("transform",
-                    "translate(0," + margin.top + ")");
+                var margin = {
+                    top: 0,
+                    right: 5,
+                    bottom: 5,
+                    left: 5
+                };
+                width = diff_w; // - margin.left - margin.right;
+
+                // append the svg object to the body of the page
+                var t_svg = d3.select("#t_chart")
+                    .append("svg")
+                    .attr("width", width) // + margin.left + margin.right)
+                    .attr("height", width - 35) // + $('nav').height())
+                    .append("g")
+                    .attr("transform",
+                        "translate(0," + margin.top + ")");
 
 
-            var all_group = classif_temp_data.filter(function(d) {
-                if (d.code_reg == code_reg) {
-                    console.warn(d)
-                    for (var p in d.data_param_values) {
-                        if (d.data_param_values[p].prop == param) {
-                            console.info(d.data_param_values[p])
-                            return d.data_param_values[p]['arr']
+                var all_group = classif_temp_data.filter(function(d) {
+                    if (d.code_reg == code_reg) {
+                        console.warn(d)
+                        for (var p in d.data_param_values) {
+                            if (d.data_param_values[p].prop == param) {
+                                console.info(d.data_param_values[p])
+                                return d.data_param_values[p]['arr']
+                            }
                         }
                     }
-                }
-            })[0];
-            var _this = all_group.data_param_values.filter(function(d) {
-                return d.prop == 'ricoverati_con_sintomi'
-            })[0];
-            console.warn(_this['arr']);
+                })[0];
+                var _this = all_group.data_param_values.filter(function(d) {
+                    return d.prop == 'ricoverati_con_sintomi'
+                })[0];
+                console.warn(_this['arr']);
 
 
-            var formatted_arr = _this['arr'].map(function(d) {
+                var formatted_arr = _this['arr'].map(function(d) {
 
-                return {
-                    date: d3.timeParse("%Y-%m-%d")(d.date),
-                    value: d.value
-                }
+                    return {
+                        date: d3.timeParse("%Y-%m-%d")(d.date),
+                        value: d.value
+                    }
 
-            })
-            console.log(formatted_arr)
-            var y_array = formatted_arr.map(function(d) {
-
-                return d.value
-
-            });
-            console.log(y_array)
-            var min_y = Math.min.apply(Math, y_array);
-            var max_y = Math.max.apply(Math, y_array);
-            // var time_array = _this['arr'].map(function(d) {
-            //     return d.date
-            // });
-
-
-            // Add X axis --> it is a date format
-            var x = d3.scaleTime()
-                .domain(d3.extent(formatted_arr, function(d) {
-                    return d.date;
-                }))
-                .range([0, width]);
-            t_svg.append("g")
-                .attr("width", width - 35) // + margin.left + margin.right)
-                //.attr("transform", "translate(0," + height + ")")
-                .attr("transform", "translate(35," + (mx_w_h + 20) + ")")
-                .attr("class", "x_axis")
-                .call(d3.axisBottom(x));
-            t_svg.selectAll(".x_axis text")
-                .attr(
-                    'fill', "rgb(242, 239, 239)")
-                .attr(
-                    'font-weight', 'lighter')
-
-            // Add Y axis
-            var y = d3.scaleLinear()
-                .domain([min_y, max_y])
-                .range([mx_w_h, 0]);
-            t_svg.append("g")
-                .attr("class", "y_axis")
-                .attr("transform", "translate(35,20)")
-                .call(d3.axisLeft(y).ticks(5))
-
-            t_svg.selectAll(".y_axis text")
-                .attr(
-                    'fill', "rgb(242, 239, 239)")
-                .attr(
-                    'font-weight', 'lighter')
-
-
-            // Initialize line with group a
-            var line_initial = t_svg
-                .append('g')
-                .attr("transform", "translate(0,17)")
-                .append("path")
-                .classed('line_path', true)
-                .datum(formatted_arr)
-                .attr("d", d3.line()
-                    .x(function(d) {
-                        return x(d.date) + 35
-                    })
-                    .y(function(d) {
-                        return y(d.value)
-                    })
-                )
-                .attr("stroke-width", 2)
-                .attr("stroke", '#ffc107')
-
-            .style("fill", "none");
-
-            // Initialize dots with group a
-            var dot = t_svg
-                .selectAll('circle')
-                .data(formatted_arr)
-                .enter()
-                .append('circle')
-                .attr("cx", function(d) {
-                    return x(d.date) + 35
                 })
-                .attr("cy", function(d) {
-                    return y(d.value) + 17
-                })
-                .attr("r", 0)
-                .transition()
-                .duration(200)
-                .attr("r", 3)
-                .attr('opacity', .6)
-                .style("fill", "#ff6347")
+                console.log(formatted_arr)
+                var y_array = formatted_arr.map(function(d) {
+
+                    return d.value
+
+                });
+                console.log(y_array)
+                var min_y = Math.min.apply(Math, y_array);
+                var max_y = Math.max.apply(Math, y_array);
+                // var time_array = _this['arr'].map(function(d) {
+                //     return d.date
+                // });
 
 
-            setTimeout(function() {
-                t_svg.selectAll('.line_path')
+                // Add X axis --> it is a date format
+                var x = d3.scaleTime()
+                    .domain(d3.extent(formatted_arr, function(d) {
+                        return d.date;
+                    }))
+                    .range([0, width]);
+                t_svg.append("g")
+                    .attr("width", width - 35) // + margin.left + margin.right)
+                    //.attr("transform", "translate(0," + height + ")")
+                    .attr("transform", "translate(35," + (mx_w_h + 20) + ")")
+                    .attr("class", "x_axis")
+                    .call(d3.axisBottom(x));
+                t_svg.selectAll(".x_axis text")
+                    .attr(
+                        'fill', "rgb(242, 239, 239)")
+                    .attr(
+                        'font-weight', 'lighter')
+
+                // Add Y axis
+                var y = d3.scaleLinear()
+                    .domain([min_y, max_y])
+                    .range([mx_w_h, 0]);
+                t_svg.append("g")
+                    .attr("class", "y_axis")
+                    .attr("transform", "translate(35,20)")
+                    .call(d3.axisLeft(y).ticks(5))
+
+                t_svg.selectAll(".y_axis text")
+                    .attr(
+                        'fill', "rgb(242, 239, 239)")
+                    .attr(
+                        'font-weight', 'lighter')
+
+
+                // Initialize line with group a
+                var line_initial = t_svg
+                    .append('g')
+                    .attr("transform", "translate(0,17)")
+                    .append("path")
+                    .classed('line_path', true)
                     .datum(formatted_arr)
-                    .transition()
-                    .duration(1000)
                     .attr("d", d3.line()
                         .x(function(d) {
                             return x(d.date) + 35
@@ -1106,20 +1098,240 @@ prop_name: "deceduti"
                             return y(d.value)
                         })
                     )
-                    .attr("stroke-width", 2);
+                    .attr("stroke-width", 2)
+                    .attr("stroke", '#ffc107')
 
-                t_svg.selectAll('circle')
-                    .datum(formatted_arr)
+                .style("fill", "none");
+
+                // Initialize dots with group a
+                var dot = t_svg
+                    .selectAll('circle')
+                    .data(formatted_arr)
+                    .enter()
+                    .append('circle')
+                    .attr("cx", function(d) {
+                        return x(d.date) + 35
+                    })
+                    .attr("cy", function(d) {
+                        return y(d.value) + 17
+                    })
+                    .attr("r", 0)
                     .transition()
                     .duration(200)
                     .attr("r", 3)
                     .attr('opacity', .6)
+                    .style("fill", "#ff6347")
 
 
-            }, 1500)
+                setTimeout(function() {
+                    t_svg.selectAll('.line_path')
+                        .datum(formatted_arr)
+                        .transition()
+                        .duration(1000)
+                        .attr("d", d3.line()
+                            .x(function(d) {
+                                return x(d.date) + 35
+                            })
+                            .y(function(d) {
+                                return y(d.value)
+                            })
+                        )
+                        .attr("stroke-width", 2);
+
+                    t_svg.selectAll('circle')
+                        .datum(formatted_arr)
+                        .transition()
+                        .duration(200)
+                        .attr("r", 3)
+                        .attr('opacity', .6)
+
+
+                }, 1500);
+
+
+
+            } //end chart
+
+        this_app.create_prov_scale = function() {
+            var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
+
+            var arr = covid_prov_data.map(function(d) {
+                return d.totale_casi;
+            })
+
+            this_app.prov_max = Math.max.apply(Math, arr);
+
+            this_app.prov_min = Math.min.apply(Math, arr);
+
+            function sort_prov_by_value(param) {
+
+                return function(a, b) {
+
+                    //  console.info(a.data[param])  //2,3,1,1...
+                    return a.totale_casi < b.totale_casi ? 1 : -1;
+                }
+
+            }
+            switch (color) {
+                case 'green':
+                    var c_arr = ['#a5ecd8', '#04956c'];
+                    break;
+
+                case 'blue':
+                    var c_arr = ['#9de0e8', '#0f2fe2'];
+                    break;
+                case 'yellowish':
+                    var c_arr = ['#ffeb3b', '#ff5722'];
+                    break;
+                case 'redish':
+                    var c_arr = ['#e37ff5', '#f30858'];
+                    break;
+
+                default:
+                    break;
+
+            }
+            console.log(c_arr);
+            console.warn(this_app.prov_min)
+
+            this_app.prov_rankScale = d3.scaleLinear().domain([this_app.prov_min, this_app.prov_max])
+                .interpolate(d3.interpolateHcl)
+                .range(c_arr);
 
         }
+
+        function draw_prov(prov_geojson) {
+
+            /*
+            code_reg": 13,
+        "name_reg": "Abruzzo",
+        "code_prov": 69,
+        "name_prov": "Chieti",
+        "sigla_provincia": "CH",
+        "lat": 42.35103167,
+        "long": 14.16754574,
+        "totale_casi": 723,
+            */
+
+
+            console.log('draw prov')
+
+            d3.selectAll('path.region').attr('opacity', 0);
+            this_app.provinces = true;
+
+            var container = map.getCanvasContainer();
+
+            var svg = d3.select(container).select("svg");
+            console.log(prov_geojson);
+            provinceElement = svg.selectAll("path.province")
+                .data(prov_geojson[0].features)
+                .enter()
+                .append("path")
+                // .classed('region', true)
+                .attr('class', function(d) {
+                    // console.warn('province code_' + d.properties.code_prov)
+                    return 'province code_' + d.properties.code_prov;
+                })
+                //.attrs(app.initial_country_style)
+                .attr("code", function(d) {
+
+                    return d.properties.code_prov;
+                })
+                .attr('fill', "black")
+                .attr('opacity', .4)
+                .attr('stroke-width', 0.4)
+                .attr('stroke', "#ffff")
+
+            svg.selectAll("path.province")
+                .transition()
+                .duration(1050)
+                .delay(function(d, i) {
+                    return i * 20;
+                })
+
+            .attr('fill', function(d) {
+
+                    var value = covid_prov_data.filter(function(_d) {
+                        if (_d.code_prov == d.properties.code_prov) {
+
+                            return _d
+                        }
+                    })[0];
+
+                    var color = this_app.prov_rankScale(value.totale_casi);
+                    console.info(color)
+
+                    return color;
+                    //this_app.rankScale(value.totale_casi)
+
+                })
+                .attr('opacity', .9)
+
+
+            app.update();
+        }
+
+        $('.plot_prov').on('click', function() {
+
+            if ($(this).hasClass('clicked')) {
+                this_app.provinces = false;
+                console.log('cliekd present');
+                d3.selectAll("#map path.province").remove()
+
+                $(this).removeClass('clicked')
+            } else {
+                this_app.provinces = true;
+                $(this).addClass('clicked');
+
+                this_app.create_prov_scale();
+
+                console.warn(this_app.prov_rankScale(1000))
+
+                if (d3.selectAll("#map path.province").size() == 0) {
+                    d3.json("./data/covid_geo_province.json").then(draw_prov);
+
+
+                } else {
+                    d3.selectAll("path.province")
+                        .transition()
+                        .duration(1050)
+                        .delay(function(d, i) {
+                            return i * 40;
+                        })
+                        .attr("delay", function(d, i) {
+                            return 10 * i
+                        })
+                        .attr('fill', function(d) {
+
+                            var value = covid_prov_data.filter(function(_d) {
+                                if (_d.code_prov == d.properties.code_prov) {
+                                    return _d
+                                }
+                            })[0];
+
+                            var color = this_app.prov_rankScale(value.totale_casi);
+                            console.info(color)
+
+                            return color;
+                            //this_app.rankScale(value.totale_casi)
+
+                        })
+                    app.update()
+                }
+
+
+            }
+        })
+
+        //         covid_prov_data.map(function(d){
+        // return {code_reg}
+        //         })
+
+        //        d3.json("./data/covid_geo_province.json").then(draw_prov);
     </script>
-    <!-- <script src="./new_app_js_2/lollipop.js"></script> -->
+    <!-- <script src="./data/covid_geo_province.js"></script> -->
+    <script src="./data/covid_prov_data.js"></script>
+
+
     <!-- <script src="./new_app_js_2/bubble.js"></script> -->
 </body>
