@@ -725,7 +725,11 @@
                 sorted.forEach(function(d, i) {
 
                     var color = this_app.rankScale(d.value);
-                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div><div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div></div>';
+                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div>';
+                    if (param !== 'model_score' && param !== 'remaining_days')
+                        html += '<div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div>';
+
+                    html += '</div>';
                     //<i class="material-icons i_highlight">highlight</i>
                 });
 
