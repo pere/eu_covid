@@ -65,7 +65,7 @@ $('#slide-out').sidenav({
 
 
 //covid missing icon?
-$('.icon_info').hide();
+//$('.icon_info').hide();
 $('.icon_info').trigger('click');
 
 //covid change class name
