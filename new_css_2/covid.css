@@ -35,12 +35,20 @@
     padding-left: 8px;
 }
 
+.param_btn .btn-small {
+    font-size: 0.7rem!important;
+    text-align: left!important;
+    padding-left: 6px!important;
+    height: auto!important;
+    line-height: 26.4px;
+}
+
 .map_legend_control_container .row {
     margin-bottom: 9px!important;
 }
 
 .map_legend_control_container {
-    max-height: 350px;
+    max-height: 438px;
     overflow: auto;
     color: white;
     min-width: 233px;
@@ -51,11 +59,11 @@
 }
 
 .map_legend_control_container a {
-    margin-left: 9px;
+    margin-left: 2px;
 }
 
 .map_popup_control_container {
-    max-height: 369px;
+    max-height: 420px;
     min-width: 265px!important;
     overflow: auto;
     background-color: #041620!important;
@@ -135,10 +143,15 @@ li:hover {
 .lollipop_legend_description {
     color: white;
     margin-left: 18px;
-    font-size: 1rem!important;
+    font-size: 0.8rem!important;
     height: 20px;
     max-width: 85%!important;
     float: left;
+}
+
+.lollipop_legend_description .title {
+    font-size: 1rem!important;
+    color: #FFC107;
 }
 
 .sel_param_name,
@@ -213,17 +226,24 @@ body>nav>div>form>ul.left>li>p {
 }
 
 .map_popup_control_container .row {
-    margin-bottom: 5px!important;
+    margin-bottom: 2px!important;
 }
 
 .map_popup_control_container .row .col.s8 {
     color: white;
-    font-size: 1rem;
+    font-size: 0.7rem;
     font-weight: 200;
 }
 
 .map_popup_control_container .row .col.s4 {
     color: tomato;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
+}
+
+.province_li .row {
+    color: white!important;
+    line-height: 23px!important;
+    font-weight: 100!important;
+    /* line-height: ; */
 }
