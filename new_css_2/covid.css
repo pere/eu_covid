@@ -55,12 +55,22 @@
 }
 
 .map_popup_control_container {
-    max-height: 350px;
+    max-height: 369px;
+    min-width: 265px!important;
     overflow: auto;
     background-color: #041620!important;
-    padding: 20px!important;
+    /* padding: 20px!important; */
+    padding: 5px!important;
     border: 1px solid #041620;
     color: white;
+}
+
+.region_name {
+    font-size: 1.78rem;
+    line-height: 44%;
+    margin: 1.22rem 0 .512rem 0;
+    padding-left: 7px;
+    padding-bottom: 5px;
 }
 
 .select_params_map_container {
@@ -196,4 +206,24 @@ body>nav>div>form>ul.left>li>p {
     /* color: white; */
     color: white;
     margin-left: 12px!important;
+}
+
+.sidenav-trigger {
+    display: none!important;
+}
+
+.map_popup_control_container .row {
+    margin-bottom: 5px!important;
+}
+
+.map_popup_control_container .row .col.s8 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 200;
+}
+
+.map_popup_control_container .row .col.s4 {
+    color: tomato;
+    font-size: 1.1rem;
+    font-weight: 700;
 }
