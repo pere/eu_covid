@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="./new_css_2/extra.css">
 
     <script src='//unpkg.com/d3@5.0.0/dist/d3.min.js'></script>
-    <script src='./data/model_results.js'></script>
-    <script src='./data/dati_regioni.js'></script>
+    <script src='./data/model_results_latest.js'></script>
+    <script src='./data/dati_regioni_latest.js'></script>
     <script src='./data/classif_temp_data.js'></script>
 
     <script src='./js/d3-selection-multi.min.js'></script>
@@ -169,7 +169,11 @@
                 <div class="collapsible-body">
 
                     <div class="row">
-                        <div class="col s12">At province level, only parameter <b>total cases (current + recovered + deaths)</b> is available</div>
+                        <div class="col s12">At province level, only parameter <b>total cases (current + recovered + deaths)</b> is available
+                            <p>
+                                <a href="https://github.com/pcm-dpc/COVID-19/tree/master/dati-json" target="_blank">COVID GitHub source</a>
+                            </p>
+                        </div>
 
                         <div class="col s12"><a href="#!" class="modal-close waves-effect waves-green btn-small left plot_prov">Map it!<i class="material-icons">public</i></a></div>
                     </div>
@@ -198,8 +202,9 @@
         var region_mouseovered_path = {};
         var province_mouseovered_path = {};
 
+        // var daily_data=['terapia_intensiva']
+        // ricoverati con sintomi, terapia intensiva, totale ospedalizzati, isolamento domiciliare, totale positivi, nuovi positivi.
         function get_p_name(prop) {
-
             switch (prop) {
 
 
@@ -210,38 +215,38 @@
                     var txt = 'Model score (0 to 1)';
                     break;
                 case 'ricoverati_con_sintomi':
-                    var txt = 'Hospitalized with symptoms';
+                    var txt = 'Current hospitalized with symptoms';
                     break;
                 case 'terapia_intensiva':
-                    var txt = 'Intensive Care';
+                    var txt = 'Current intensive Care';
                     break;
                 case 'totale_ospedalizzati':
-                    var txt = 'Total hospitalized';
+                    var txt = 'Current total hospitalized';
                     break;
                 case 'isolamento_domiciliare':
-                    var txt = 'Self-quarantine at home';
+                    var txt = 'Current self-quarantine at home';
                     break;
                 case 'totale_positivi':
                     var txt = 'Total positive cases (currently positive)';
                     break;
                 case 'variazione_totale_positivi':
-                    var txt = 'total variation of positive cases';
+                    var txt = 'Current total variation of positive cases';
                     break;
                 case 'nuovi_positivi':
-                    var txt = 'New positive cases';
+                    var txt = 'Current new positive cases';
                     break;
 
                 case 'dimessi_guariti':
-                    var txt = 'Recovered Dismissed from Hospital';
+                    var txt = 'Current recovered Dismissed from Hospital';
                     break;
                 case 'deceduti':
-                    var txt = 'Deaths';
+                    var txt = 'Deaths (cumulative)';
                     break;
                 case 'totale_casi':
-                    var txt = 'current infected+recovered+deaths';
+                    var txt = 'Current infected+recovered+deaths';
                     break;
                 case 'tamponi':
-                    var txt = 'Number of tests';
+                    var txt = 'Number of tests (cumulative)';
                     break;
                 case 'casi_testati':
                     var txt = 'Number of people tested';
@@ -932,179 +937,181 @@
         }
         this_app.update_geom_by_model_rank = function() {
 
-            app_state.first_time_prov = false;
+                app_state.first_time_prov = false;
 
-            $('#lollipop_wrapper').hide();
-            app_state.initial_state = false;
-            this_app.provinces = false;
-            //d3.selectAll("path.province").attr("opacity", 0);
-            app_state.first_update == false;
-            app.update();
-            $('.plot_prov').removeClass('clicked')
-            var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
+                $('#lollipop_wrapper').hide();
+                app_state.initial_state = false;
+                this_app.provinces = false;
+                //d3.selectAll("path.province").attr("opacity", 0);
+                app_state.first_update == false;
+                app.update();
+                $('.plot_prov').removeClass('clicked')
+                var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
 
-            var _this = reduced.data.filter(function(d) {
-                return d.prop_name == param;
-            })[0];
-            console.warn(_this)
+                var _this = reduced.data.filter(function(d) {
+                    return d.prop_name == param;
+                })[0];
+                console.warn(_this)
 
-            var _this_model_score = reduced.data.filter(function(d) {
-                return d.prop_name == 'model_score';
-            })[0];
-            var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
+                var _this_model_score = reduced.data.filter(function(d) {
+                    return d.prop_name == 'model_score';
+                })[0];
+                var color = $('.map_legend_control_container .color_btn .clicked').attr('color_param');
 
-            this_app.plotted_params['active_param'] = param;
+                this_app.plotted_params['active_param'] = param;
 
-            switch (color) {
-                case 'green':
-                    var c_arr = ['#a5ecd8', '#04956c'];
-                    break;
+                switch (color) {
+                    case 'green':
+                        var c_arr = ['#a5ecd8', '#04956c'];
+                        break;
 
-                case 'blue':
-                    var c_arr = ['#9de0e8', '#0f2fe2'];
-                    break;
-                case 'yellowish':
-                    var c_arr = ['#ffeb3b', '#ff5722'];
-                    break;
-                case 'redish':
-                    var c_arr = ['#e37ff5', '#f30858'];
-                    break;
+                    case 'blue':
+                        var c_arr = ['#9de0e8', '#0f2fe2'];
+                        break;
+                    case 'yellowish':
+                        var c_arr = ['#ffeb3b', '#ff5722'];
+                        break;
+                    case 'redish':
+                        var c_arr = ['#e37ff5', '#f30858'];
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
 
-            }
-            this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
-                .interpolate(d3.interpolateHcl)
-                .range(c_arr);
+                }
+                this_app.rankScale = d3.scaleLinear().domain([_this.min_max.min, _this.min_max.max])
+                    .interpolate(d3.interpolateHcl)
+                    .range(c_arr);
 
-            console.log(_this);
-            var sorted = _this.arr_data_codes.sort(sort_by_value(param));
-            console.log(sorted)
+                console.log(_this);
+                var sorted = _this.arr_data_codes.sort(sort_by_value(param));
+                console.log(sorted)
 
-            $('#sel_param_region,.sel_param_name').empty();
-            $('.sel_param_name').text(get_p_name(param));
+                $('#sel_param_region,.sel_param_name').empty();
+                $('.sel_param_name').text(get_p_name(param));
 
-            var $region_append = $('#sel_param_region');
+                var $region_append = $('#sel_param_region');
 
-            var html = '';
-            sorted.forEach(function(d, i) {
+                var html = '';
+                sorted.forEach(function(d, i) {
 
-                var color = this_app.rankScale(d.value);
-                html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div>';
-                if (param !== 'model_score' && param !== 'remaining_days')
-                    html += '<div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div>';
+                    var color = this_app.rankScale(d.value);
+                    html += '<div code_reg="' + d.code + '" class="row indiv_region_container" style="background-color:' + color + '"><div class="a_name_container col s5">' + d.name + '</div><div class="col s3">' + d.value + '</div>';
+                    if (param !== 'model_score' && param !== 'remaining_days')
+                        html += '<div class="col s3 i_container"><i class="small material-icons i_clock" style="color:white">access_time</i></div>';
 
-                html += '</div>';
-                //<i class="material-icons i_highlight">highlight</i>
-            });
+                    html += '</div>';
+                    //<i class="material-icons i_highlight">highlight</i>
+                });
 
-            $region_append.html(html);
+                $region_append.html(html);
 
-            if ($('.sidenav-trigger').hasClass('on') == false) {
-                console.warn('sidenav not visible')
-                $('.sidenav-trigger i').trigger('click');
+                if ($('.sidenav-trigger').hasClass('on') == false) {
+                    console.warn('sidenav not visible')
+                    $('.sidenav-trigger i').trigger('click');
 
-            }
-            if ($('.indicators_li .collapsible-body').is(':visible') == false) {
-                $('.indicators_li .collapsible-header').trigger('click');
-            }
+                }
+                if ($('.indicators_li .collapsible-body').is(':visible') == false) {
+                    $('.indicators_li .collapsible-header').trigger('click');
+                }
 
-            $('.indiv_region_container').on('mouseover', function(e) {
+                $('.indiv_region_container').on('mouseover', function(e) {
 
-                    if (this_app.provinces == true)
-                        return false
+                        if (this_app.provinces == true)
+                            return false
 
-                    $(this).addClass('hovered');
-                    var code_reg = $(this).attr('code_reg');
-                    var t = '#map path.region.code_' + code_reg;
-                    d3.select(t)
-                        .dispatch('mouseover');
+                        $(this).addClass('hovered');
+                        var code_reg = $(this).attr('code_reg');
+                        var t = '#map path.region.code_' + code_reg;
+                        d3.select(t)
+                            .dispatch('mouseover');
 
-                    populate_map_popup_control_container(code_reg)
-                        // if ($(e.target).hasClass('i_highlight')) {
+                        populate_map_popup_control_container(code_reg)
+                            // if ($(e.target).hasClass('i_highlight')) {
 
-                    // }
-                })
-                .on('mouseout', function(e) {
+                        // }
+                    })
+                    .on('mouseout', function(e) {
 
-                    if (this_app.provinces == true)
-                        return false
-                            //console.log($(this))
-                    $(this).removeClass('hovered');
-                    var code_reg = $(this).attr('code_reg');
-                    var t = '#map path.region.code_' + code_reg;
-                    d3.select(t)
-                        .dispatch('mouseleave');
-                })
-                .on('click', function(e) {
-                    if (this_app.provinces == true)
-                        return false
+                        if (this_app.provinces == true)
+                            return false
+                                //console.log($(this))
+                        $(this).removeClass('hovered');
+                        var code_reg = $(this).attr('code_reg');
+                        var t = '#map path.region.code_' + code_reg;
+                        d3.select(t)
+                            .dispatch('mouseleave');
+                    })
+                    .on('click', function(e) {
+                        if (this_app.provinces == true)
+                            return false
 
-                    if ($(e.target).hasClass('i_clock')) {
-
-
-                        if ($(e.target).hasClass('clicked')) {
-                            //    alert('clicked')
-                            this_app.plotted_params.code_reg = null;
-                            $(e.target).removeClass('clicked');
-                            $('#lollipop_wrapper').hide();
-                        } else {
-                            $('.i_clock.clicked').removeClass('clicked');
-                            var code_reg = $(this).attr('code_reg');
-                            $(e.target).addClass('clicked');
-                            this_app.plotted_params.code_reg = code_reg;
-                            // this_app.plotted_params.active_param=code_reg;
-                            var region_name = $(this).find('.a_name_container').text()
-                            this_app.t_chart(this_app.plotted_params.active_param, code_reg, classif_temp_data, region_name);
-                        }
+                        if ($(e.target).hasClass('i_clock')) {
 
 
-                    }
-                })
-                //$('#sel_param_region')
-            var map_paths = d3.selectAll("#map path.region");
-            //alert(map_paths.size())
-            //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
-            var reg_codes_arr = _this['arr_data_codes'].map(function(d) {
-                return d.code;
-            })
-            console.log(reg_codes_arr)
-            map_paths
-                .transition()
-                .duration(1250)
-                .delay(function(d, i) {
-                    return i * 40;
-                })
-                .attr("delay", function(d, i) {
-                    return 180 * i
-                })
-                .attr('fill', function(d, i) {
-
-                    var pos = reg_codes_arr.indexOf(d.properties.code_reg);
-                    if (pos > -1) {
-
-
-
-                        for (var p in _this['arr_data_codes']) {
-                            if (_this['arr_data_codes'][p].code == d.properties.code_reg) {
-                                var color = this_app.rankScale(_this['arr_data_codes'][p].value);
-                                return color;
+                            if ($(e.target).hasClass('clicked')) {
+                                //    alert('clicked')
+                                this_app.plotted_params.code_reg = null;
+                                $(e.target).removeClass('clicked');
+                                $('#lollipop_wrapper').hide();
+                            } else {
+                                $('.i_clock.clicked').removeClass('clicked');
+                                var code_reg = $(this).attr('code_reg');
+                                $(e.target).addClass('clicked');
+                                this_app.plotted_params.code_reg = code_reg;
+                                // this_app.plotted_params.active_param=code_reg;
+                                var region_name = $(this).find('.a_name_container').text()
+                                this_app.t_chart(this_app.plotted_params.active_param, code_reg, classif_temp_data, region_name);
                             }
+
+
                         }
-                    } else {
-                        return '#fbfdfc';
-                    }
-
+                    })
+                    //$('#sel_param_region')
+                var map_paths = d3.selectAll("#map path.region");
+                //alert(map_paths.size())
+                //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
+                var reg_codes_arr = _this['arr_data_codes'].map(function(d) {
+                    return d.code;
                 })
-                .attr("stroke-width", .4)
-                .attr('stroke', '#ffff')
-                .attr('opacity', .8)
+                console.log(reg_codes_arr)
+                map_paths
+                    .transition()
+                    .duration(1250)
+                    .delay(function(d, i) {
+                        return i * 40;
+                    })
+                    .attr("delay", function(d, i) {
+                        return 180 * i
+                    })
+                    .attr('fill', function(d, i) {
+
+                        var pos = reg_codes_arr.indexOf(d.properties.code_reg);
+                        if (pos > -1) {
 
 
-        }
 
+                            for (var p in _this['arr_data_codes']) {
+                                if (_this['arr_data_codes'][p].code == d.properties.code_reg) {
+                                    var color = this_app.rankScale(_this['arr_data_codes'][p].value);
+                                    return color;
+                                }
+                            }
+                        } else {
+                            return '#fbfdfc';
+                        }
+
+                    })
+                    .attr("stroke-width", .4)
+                    .attr('stroke', '#ffff')
+                    .attr('opacity', .8)
+
+
+            }
+            // alert(classif_temp_data.length)
+            // alert(temp_dati_regione)
         console.warn(classif_temp_data)
+
         for (var i = 0; i < temp_dati_regione.length - 1; i++) {
             var d = temp_dati_regione[i];
 
@@ -1121,9 +1128,9 @@
 
                                 if (classif_temp_data[x].data_param_values[s]['prop'] === p) {
                                     classif_temp_data[x].data_param_values[s]['arr'].push({
-                                        code: code_reg,
+                                        code: parseInt(code_reg),
                                         param: p,
-                                        value: d[p],
+                                        value: parseInt(d[p]),
                                         date: d.date
                                     })
 
@@ -1144,6 +1151,8 @@
 
         this_app.t_chart = function(param, code_reg, data, name) {
 
+                var param = this_app.plotted_params.active_param;
+                console.info(param)
                 if ($('#t_chart svg').length > 0) {
                     $('#t_chart svg').remove();
                 }
@@ -1151,6 +1160,7 @@
                 $('.lollipop_legend_description').html('<span class="title">' + get_p_name(this_app.plotted_params.active_param) + '</span> evolution in ' + name)
 
                 var mx_w_h = $('#map').height() / 6;
+                console.warn(mx_w_h)
                 $('#lollipop_wrapper').height(mx_w_h + $('nav').height());
                 var map_w = $('#map').width();
 
@@ -1158,7 +1168,7 @@
                 var diff_w = map_w - (map_w / 3);
 
                 $('#lollipop_wrapper').css('top', diff_h - 5)
-                    .css('width', diff_w + 'px')
+                    .css('width', (diff_w + 45) + 'px')
                     //half of half map width!!
                     .css('margin-left', (map_w / 8));
 
@@ -1176,7 +1186,7 @@
                 // append the svg object to the body of the page
                 var t_svg = d3.select("#t_chart")
                     .append("svg")
-                    .attr("width", width) // + margin.left + margin.right)
+                    .attr("width", width + 45) // + margin.left + margin.right)
                     .attr("height", width - 35) // + $('nav').height())
                     .append("g")
                     .attr("transform",
@@ -1195,9 +1205,9 @@
                     }
                 })[0];
                 var _this = all_group.data_param_values.filter(function(d) {
-                    return d.prop == 'ricoverati_con_sintomi'
+                    return d.prop == param
                 })[0];
-                console.warn(_this['arr']);
+                console.warn(_this);
 
 
                 var formatted_arr = _this['arr'].map(function(d) {
@@ -1216,7 +1226,9 @@
                 });
                 console.log(y_array)
                 var min_y = Math.min.apply(Math, y_array);
+
                 var max_y = Math.max.apply(Math, y_array);
+
                 // var time_array = _this['arr'].map(function(d) {
                 //     return d.date
                 // });
@@ -1246,7 +1258,7 @@
                     .range([mx_w_h, 0]);
                 t_svg.append("g")
                     .attr("class", "y_axis")
-                    .attr("transform", "translate(35,20)")
+                    .attr("transform", "translate(45,20)")
                     .call(d3.axisLeft(y).ticks(5))
 
                 t_svg.selectAll(".y_axis text")
@@ -1519,7 +1531,7 @@
         //        d3.json("./data/covid_geo_province.json").then(draw_prov);
     </script>
     <!-- <script src="./data/covid_geo_province.js"></script> -->
-    <script src="./data/covid_prov_data.js"></script>
+    <script src="./data/covid_prov_data_latest.js"></script>
 
 
     <!-- <script src="./new_app_js_2/bubble.js"></script> -->
