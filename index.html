@@ -368,9 +368,9 @@
             attributionControl: false
         });
         $(".mapboxgl-map").css('background-color', "#a1b4c1")
-
+        map.addControl(new mapboxgl.NavigationControl());
         map.on('load', function() {
-            map.addControl(new mapboxgl.NavigationControl());
+
 
             // map.addSource("carto", {
             //     "type": "raster",
@@ -742,6 +742,7 @@
 
 
         var params_to_arr_index = [];
+        //<div class="last_update">Last update: 28-04-2020</div>
         var btn_html = '<div class="param_btn"><div class="row param_title">First select a parameter to symbolize</div>';
         //var select_html = '<div class="row select_params_map_container"><div class="input-field s12 col"><select id="param_select">';
         var options = '';
