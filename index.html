@@ -119,7 +119,7 @@
                     </div>
                     <div class="card-stacked">
                         <div class="card-content">
-                            <span class="card-title card-title_country">Models data</span>
+                            <span class="card-title card-title_country">Regional model data</span>
                             <p class="country_name_header"></p>
                             <div><i onclick="window.print()" class="material-icons pdf_print">picture_as_pdf</i></div>
                             <div><i class="material-icons csv_export_all">cloud_download</i></div>
@@ -700,6 +700,7 @@
                             })
                             .attr('opacity', .8)
                     } else {
+                        svg.selectAll("path.region").attr('opacity', 0)
                         svg.selectAll("path.province").attr('opacity', .8)
                     }
 
