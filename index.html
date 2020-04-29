@@ -27,7 +27,7 @@
     <script src='./js/d3-selection-multi.min.js'></script>
     <script src="./js/topojson.v1.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.js'></script>
-    <script src="./new_app_js_2/helpers.js"></script>
+    <script src="./new_app_js_2/helpers_covid.js"></script>
     <style>
 
     </style>
@@ -136,7 +136,8 @@
                         <li>
 
                             <div class="row sel_param_name">
-                                <div class="col s12">Select first a parameter!</div>
+                                <div class="col s12"></div>
+                                <div class="col s12 remaining_days_description"></div>
                             </div>
                             <div id="sel_param_region">
 
@@ -194,6 +195,9 @@
 
     <script src="./new_app_js_2/covid_attach_ev.js"></script>
     <script>
+        var region_mouseovered_path = {};
+        var province_mouseovered_path = {};
+
         function get_p_name(prop) {
 
             switch (prop) {
@@ -439,6 +443,21 @@
             this_app.just_region_popup.addTo(map);
 
 
+            this_app.province_popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: true,
+                className: 'province_map_popup',
+                //offset: [20, -20]
+                offset: {
+                    'bottom': [0, -20],
+                    'top': [0, 15],
+                    'top-left': [0, 0], //[linearOffset, (markerHeight - markerRadius - linearOffset) * -1],
+                    'top-right': [0, 0], //[-linearOffset, (markerHeight - markerRadius - linearOffset) * -1],
+
+                }
+            });
+            //  this_app.province_popup.addTo(map);
+
 
             // var _t = model_results.filter(function(d) {
             //     return d.code_reg == '13'
@@ -449,19 +468,46 @@
 
             map.on("mousemove", function(e) {
 
-                if (!mouseovered_path._data) {
 
-                    console.warn('no mouseovered_path data')
-                    return false;
-                }
 
 
                 var latlng = e.lngLat;
                 var x = e.originalEvent.clientX;
                 var y = e.originalEvent.clientY;
 
-                this_app.just_region_popup.setLngLat(latlng)
-                this_app.just_region_popup.setHTML('<div class="country_popup small_popup">' + mouseovered_path._data.den_reg + '</div>')
+
+                if (this_app.provinces == false) {
+
+                    if (!region_mouseovered_path._data) {
+
+                        console.warn('no region_mouseovered_path data')
+                        return false;
+                    }
+                    this_app.just_region_popup.setLngLat(latlng)
+
+                    this_app.just_region_popup.setHTML('<div class="country_popup small_popup">' + region_mouseovered_path._data.den_reg + '</div>');
+                } else {
+                    console.log('prov popup')
+                    if (!province_mouseovered_path._data) {
+
+                        console.warn('no province_mouseovered_path data')
+                        return false;
+                    }
+
+                    if ($('.mapboxgl-popup.province_map_popup').length == 0) {
+                        this_app.province_popup.addTo(map);
+                    }
+
+                    $('.mapboxgl-popup.region_map_popup').hide()
+
+                    this_app.province_popup.setLngLat(latlng)
+                    this_app.province_popup.setHTML('<div class="country_popup small_popup">' +
+                        province_mouseovered_path._data.name_prov + '</div><div class="covid_prov_value">' + province_mouseovered_path._data.covid_value + '</div><span style="color:white;font-size:0.8rem;"> total cases</span>');
+
+
+                }
+
+
 
             })
 
@@ -490,6 +536,7 @@
         "sigla_provincia": "CH",
         */
             console.log(geojson.features)
+
             var featureElement = svg.selectAll("path.region")
                 .data(geojson.features)
                 .enter()
@@ -498,7 +545,7 @@
                 .attr('class', function(d) {
                     return 'region code_' + d.properties.code_reg;
                 })
-                .attrs(app.initial_country_style)
+                .attrs(app.initial_region_style)
                 .attr("code", function(d) {
 
                     return d.properties.code_reg;
@@ -519,25 +566,39 @@
                         $('.map_legend_control_container.mapboxgl-ctrl').hide();
 
                         $('.mapboxgl-popup').show();
-                        console.info('mouseenter geo path ' + d.properties.code_reg)
-                        mouseovered_path._data = d.properties;
-                        mouseovered_path.code = d.properties.code_reg;
+
+                        region_mouseovered_path._data = d.properties;
+                        region_mouseovered_path.code = d.properties.code_reg;
                         var t = '#map path.region.code_' + d.properties.code_reg;
 
                         app.mouseover_prev_color = d3.select(t).attr('fill');
                         app.mouseover_prev_opacity = d3.select(t).attr('opacity');
                         console.info(d3.selectAll('.region.code_' + d.properties.code_reg))
-                        d3.selectAll(t)
-                            .attr('fill', '#9acd32')
-                            // .transition().delay(50)
-                            .attr('fill', '#ffeb3b')
-                            .attr('opacity', .8)
 
+                        if (app_state.initial_state == true) {
+                            console.info('mouseenter geo path ' + d.properties.code_reg)
+
+                            d3.selectAll(t)
+                                .attr('fill', '#9acd32')
+                                // .transition().delay(50)
+                                .attr('fill', '#ffeb3b')
+                                .attr('opacity', .8)
+                        } else {
+                            console.log(app.mouseover_prev_color)
+                            svg.selectAll("path.region").attr('opacity', .4)
+                            d3.selectAll(t)
+
+                            //.transition().delay(20)
+                            .attr('stroke-width', 2)
+                                .attr('fill', app.mouseover_prev_color)
+                                //.attr('opacity', app.mouseover_prev_opacity)
+                                .attr('opacity', app.mouseover_prev_opacity)
+
+                            .attr('stroke', '#ffff')
+                                .attr('opacity', .8)
+                        }
                         populate_map_popup_control_container(d.properties.code_reg, d)
                     }
-
-
-
                 })
                 .on('mouseleave', function(d) {
                     if (this_app.provinces == true)
@@ -555,12 +616,18 @@
                             // .transition().delay(100)
                             //.attr('fill', app.mouseover_prev_color)
                             //from initial_no_fill_country_style
+                            .attr('stroke-width', 0.4)
                             .attr('fill', 'black')
                             //.attr('opacity', app.mouseover_prev_opacity)
-                            .attr('opacity', 0.4);
+                            .attr('opacity', 0.2);
                     } else {
+
+                        svg.selectAll("path.region").attr('opacity', .8)
+                            //  setTimeout(function)
                         d3.select(t)
-                            //  .transition().delay(100)
+                            // .transition().delay(100)
+                            .attr('stroke-width', .4)
+                            .attr('stroke', '#ffff')
                             .attr('fill', app.mouseover_prev_color)
                             //.attr('opacity', app.mouseover_prev_opacity)
                             .attr('opacity', app.mouseover_prev_opacity);
@@ -576,7 +643,7 @@
             app.update = function() {
                 console.warn('updateing geom')
                     //featureElement.attr("d", path)
-                mouseovered_path.code = null;
+                region_mouseovered_path.code = null;
                 if (this_app.provinces == false) {
                     console.log('prov false')
                     featureElement.attr("d", path)
@@ -587,16 +654,51 @@
                 //alert(provinceElement.size())
                 if (this_app.provinces == true) {
                     provinceElement = svg.selectAll("path.province")
-                    provinceElement.attr("d", path)
-                    provinceElement.attr("opacity", 0.6);
-                    //.attr('opacity', 1)
+                    provinceElement.attr("d", path);
                     featureElement.attr("opacity", 0);
+                    //   alert(app_state.first_update)
+                    if (app_state.first_update == true) {
+                        svg.selectAll("path.province")
+                            .transition()
+                            .duration(1050)
+                            .delay(function(d, i) {
+                                return i * 20;
+                            })
+
+                        .attr('fill', function(d, i) {
+
+                                var value = covid_prov_data.filter(function(_d) {
+                                    if (_d.code_prov == d.properties.code_prov) {
+                                        return _d;
+                                    }
+                                })[0];
+
+                                var color = this_app.prov_rankScale(value.totale_casi);
+                                console.info(color)
+                                    // if (i > 20)
+                                    //     debugger
+
+                                return color;
+                                //this_app.rankScale(value.totale_casi)
+
+                            })
+                            .attr('opacity', .8)
+                    } else {
+                        svg.selectAll("path.province").attr('opacity', .8)
+                    }
+
+
+
+
                 }
 
             }
 
             //
-            map.on("viewreset", app.update());
+            map.on("viewreset", function() {
+                app_state.first_update = false;
+                app.update()
+            });
             map.on("movestart", function() {
                 svg.classed("hidden", true);
             });
@@ -604,6 +706,7 @@
                 svg.classed("hidden", true);
             });
             map.on("moveend", function() {
+                app_state.first_update = false;
                 app.update();
                 svg.classed("hidden", false);
             })
@@ -651,8 +754,8 @@
                         // $('.map_legend_control_container').append(s);
                     var color_html = '<div class="color_btn">';
                     color_html += '<div class="row param_title">You can change the scale color</div>';
-                    color_html += '<div class="row"><a color_param="green" class="waves-effect waves-light btn btn-small clicked">Green</a></div>';
-                    color_html += '<div class="row"><a color_param="yellowish" class="waves-effect waves-light btn btn-small">Yellow-red</a></div>';
+                    color_html += '<div class="row"><a color_param="green" class="waves-effect waves-light btn btn-small">Green</a></div>';
+                    color_html += '<div class="row"><a color_param="yellowish" class="waves-effect waves-light btn btn-small clicked">Yellow-red</a></div>';
                     color_html += '<div class="row"><a color_param="blue" class="waves-effect waves-light btn btn-small">Blue</a></div>';
                     color_html += '<div class="row"><a color_param="redish" class="waves-effect waves-light btn btn-small">Purple-Red</a></div>';
                     color_html += '</div>';
@@ -742,10 +845,53 @@
             arr_data_codes: [],
             data: []
         });
-        console.warn(reduced)
+        console.warn(reduced);
+
+        var to_remove = [];
+
+        reduced['data'].map(function(d, i) {
+            if (d.prop_name == 'model_score') {
+
+
+                for (var p in d['arr']) {
+                    var val = d['arr'][p]
+                    console.log(val)
+                    if (val < 0.85) {
+                        console.warn(val + ' for ' + p);
+                        to_remove.push(p)
+                            // console.log(p); //index on arry
+                            // console.info(d['arr'].indexOf(val))
+                    }
+                }
+            }
+        });
+
+
 
         reduced['data'].forEach(function(d, i) {
+
             var arr = d.arr;
+            if (d.prop_name == 'remaining_days') {
+
+                for (var i = to_remove.length - 1; i >= 0; i--)
+                    d.arr.splice(to_remove[i], 1);
+
+                for (var i = to_remove.length - 1; i >= 0; i--)
+                    d.arr_data_codes.splice(to_remove[i], 1);
+                // for (var i in d.arr) {
+                //     var pos = to_remove.indexOf(i)
+                //     if (pos !== -1) {
+                //         d.arr.splice(pos, 1);
+                //     }
+                // }
+
+                // for (var i in d.arr_data_codes) {
+                //     var pos = to_remove.indexOf(i)
+                //     if (pos !== -1) {
+                //         d.arr_data_codes.splice(pos, 1);
+                //     }
+                // }
+            }
 
             var max = Math.max.apply(Math, d.arr);
 
@@ -753,6 +899,8 @@
             d.min_max.max = max;
             d.min_max.min = min;
         });
+
+
 
 
 
@@ -771,7 +919,7 @@
             app_state.initial_state = false;
             this_app.provinces = false;
             //d3.selectAll("path.province").attr("opacity", 0);
-
+            app_state.first_update == false;
             app.update();
             $('.plot_prov').removeClass('clicked')
             var param = $('.map_legend_control_container .param_btn .clicked').attr('param');
@@ -779,6 +927,7 @@
             var _this = reduced.data.filter(function(d) {
                 return d.prop_name == param;
             })[0];
+            console.warn(_this)
 
             var _this_model_score = reduced.data.filter(function(d) {
                 return d.prop_name == 'model_score';
@@ -898,7 +1047,10 @@
             var map_paths = d3.selectAll("#map path.region");
             //alert(map_paths.size())
             //$region_append.append('<div class="row"><span _class_selected="true"></span><div class="a_name_container col s8">Highly suitable</div><i class="col s1 small material-icons" ">feedback</i><i class="small material-icons off highlight" style="color: #00a5ff;">grade</i></div>')
-
+            var reg_codes_arr = _this['arr_data_codes'].map(function(d) {
+                return d.code;
+            })
+            console.log(reg_codes_arr)
             map_paths
                 .transition()
                 .duration(1250)
@@ -906,27 +1058,29 @@
                     return i * 40;
                 })
                 .attr("delay", function(d, i) {
-                    return 100 * i
+                    return 180 * i
                 })
                 .attr('fill', function(d, i) {
 
-                    var pos = reduced.codes.indexOf(d.properties.code_reg);
-                    var val = _this['arr'][pos];
-                    // console.log(_this_model_score)
-                    // console.log(_this_model_score['arr'][pos])
-                    // console.warn(param)
-                    if (param == 'remaining_days' && _this_model_score['arr'][pos] < 0.85) {
+                    var pos = reg_codes_arr.indexOf(d.properties.code_reg);
+                    if (pos > -1) {
 
-                        var color = '#d9d3d3';
+
+
+                        for (var p in _this['arr_data_codes']) {
+                            if (_this['arr_data_codes'][p].code == d.properties.code_reg) {
+                                var color = this_app.rankScale(_this['arr_data_codes'][p].value);
+                                return color;
+                            }
+                        }
                     } else {
-                        var color = this_app.rankScale(val);
+                        return '#fbfdfc';
                     }
 
-
-                    return color;
                 })
-                .attr("stroke", "#fbfdfc")
-                .attr('opacity', 1)
+                .attr("stroke-width", .4)
+                .attr('stroke', '#ffff')
+                .attr('opacity', .8)
 
 
         }
@@ -1232,40 +1386,93 @@
                     // console.warn('province code_' + d.properties.code_prov)
                     return 'province code_' + d.properties.code_prov;
                 })
-                //.attrs(app.initial_country_style)
+                //.attrs(app.initial_region_style)
                 .attr("code", function(d) {
 
                     return d.properties.code_prov;
                 })
-                .attr('fill', "black")
-                .attr('opacity', .4)
-                .attr('stroke-width', 0.4)
-                .attr('stroke', "#ffff")
-
-            svg.selectAll("path.province")
-                .transition()
-                .duration(1050)
-                .delay(function(d, i) {
-                    return i * 20;
-                })
-
-            .attr('fill', function(d) {
-
+                .attr('covid_value', function(d) {
                     var value = covid_prov_data.filter(function(_d) {
                         if (_d.code_prov == d.properties.code_prov) {
-
-                            return _d
+                            return _d;
                         }
                     })[0];
+                    return value.totale_casi;
+                })
+                .attr('fill', "black")
+                .attr('opacity', 0)
+                .attr('stroke-width', 0.4)
+                .attr('stroke', "#ffff")
+                .on('mouseenter', function(d) {
+                    if (this_app.provinces == true) {
+                        //return false                       
+                        $('.mapboxgl-popup').show();
 
-                    var color = this_app.prov_rankScale(value.totale_casi);
-                    console.info(color)
+                        svg.selectAll("path.province").attr('opacity', .3)
 
-                    return color;
-                    //this_app.rankScale(value.totale_casi)
+                        var value = covid_prov_data.filter(function(_d) {
+                            if (_d.code_prov == d.properties.code_prov) {
+                                return _d;
+                            }
+                        })[0];
+
+                        province_mouseovered_path._data = d.properties;
+                        province_mouseovered_path._data.covid_value = value.totale_casi;
+                        province_mouseovered_path.code = d.properties.code_prov;
+                        var t = '#map path.province.code_' + d.properties.code_prov;
+
+                        app.mouseover_prov_prev_color = d3.select(t).attr('fill');
+                        app.mouseover_prev_opacity = d3.select(t).attr('opacity');
+                        // console.info(d3.selectAll('.province.code_' + d.properties.code_prov))
+                        d3.selectAll(t)
+                            .attr('stroke-width', 2)
+                            .attr('opacity', .8)
+
+                        //  populate_prov_map_popup_control_container(d.properties.code_prov, d)
+                    }
+
+
 
                 })
-                .attr('opacity', .9)
+                //.attr('opacity', .1)
+                .on('mouseleave', function(d) {
+
+
+                    if (this_app.provinces == true) {
+                        svg.selectAll("path.province").attr('opacity', .8)
+                            .attr('stroke-width', .4)
+                        $('.mapboxgl-popup.province_map_popup').hide();
+                    } else {
+                        $('.mapboxgl-popup.region_map_popup').hide();
+                    }
+                    //return false
+
+                    // app.throttle(
+                    // console.warn('mouseout geo path ' + d.properties.code_prov)
+                    // var t = '#map path.province.code_' + d.properties.code_prov;
+
+
+                    // if (app_state.initial_state == true) {
+                    //     d3.select(t)
+                    //         // .transition().delay(100)
+                    //         //.attr('fill', app.mouseover_prev_color)
+                    //         //from initial_no_fill_country_style
+                    //         .attr('fill', 'black')
+                    //         //.attr('opacity', app.mouseover_prev_opacity)
+                    //         .attr('opacity', 0.4);
+                    // } else {
+                    //     d3.select(t)
+                    //         //  .transition().delay(100)
+                    //         .attr('fill', app.mouseover_prev_color)
+                    //         //.attr('opacity', app.mouseover_prev_opacity)
+                    //         .attr('opacity', app.mouseover_prev_opacity);
+
+                    // }
+
+                    $('.mapboxgl-popup').hide();
+                });
+
+
 
 
             app.update();
@@ -1276,10 +1483,12 @@
             if ($(this).hasClass('clicked')) {
                 this_app.provinces = false;
                 console.log('cliekd present');
-                d3.selectAll("#map path.province").remove()
-
+                d3.selectAll("#map path.region").attr('opacity', 1);
+                d3.selectAll("#map path.province").remove();
+                app_state.first_update == false;
                 $(this).removeClass('clicked')
             } else {
+                app_state.first_update = true;
                 this_app.provinces = true;
                 $(this).addClass('clicked');
 
@@ -1288,34 +1497,16 @@
                 console.warn(this_app.prov_rankScale(1000))
 
                 if (d3.selectAll("#map path.province").size() == 0) {
+                    app_state.first_time_prov = true;
+
                     d3.json("./data/covid_geo_province.json").then(draw_prov);
 
 
                 } else {
-                    d3.selectAll("path.province")
-                        .transition()
-                        .duration(1050)
-                        .delay(function(d, i) {
-                            return i * 40;
-                        })
-                        .attr("delay", function(d, i) {
-                            return 10 * i
-                        })
-                        .attr('fill', function(d) {
+                    app_state.first_time_prov = false;
+                    // d3.selectAll("path.province")
 
-                            var value = covid_prov_data.filter(function(_d) {
-                                if (_d.code_prov == d.properties.code_prov) {
-                                    return _d
-                                }
-                            })[0];
 
-                            var color = this_app.prov_rankScale(value.totale_casi);
-                            console.info(color)
-
-                            return color;
-                            //this_app.rankScale(value.totale_casi)
-
-                        })
                     app.update()
                 }
 
