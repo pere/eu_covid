@@ -247,3 +247,19 @@ body>nav>div>form>ul.left>li>p {
     font-weight: 100!important;
     /* line-height: ; */
 }
+
+.covid_prov_value {
+    font-size: 1.3rem!important;
+    color: tomato!important;
+}
+
+.mapboxgl-popup {
+    color: white;
+    text-align: center!important;
+    font-size: 1.1rem!important;
+}
+
+.remaining_days_description {
+    font-size: 0.8em;
+    /* display: none; */
+}
