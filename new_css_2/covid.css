@@ -63,14 +63,15 @@
 }
 
 .map_popup_control_container {
-    max-height: 420px;
-    min-width: 265px!important;
+    max-height: 440px;
+    min-width: 285px!important;
     overflow: auto;
     background-color: #041620!important;
     /* padding: 20px!important; */
     padding: 5px!important;
     border: 1px solid #041620;
     color: white;
+    top: 15px;
 }
 
 .region_name {
