@@ -477,7 +477,7 @@
 
 
                 if (this_app.provinces == false) {
-
+                    $('.province_map_popup.mapboxgl-popup').hide();
                     if (!region_mouseovered_path._data) {
 
                         console.warn('no region_mouseovered_path data')
@@ -488,8 +488,9 @@
                     this_app.just_region_popup.setHTML('<div class="country_popup small_popup">' + region_mouseovered_path._data.den_reg + '</div>');
                 } else {
                     console.log('prov popup')
+                    console.log(province_mouseovered_path)
                     if (!province_mouseovered_path._data) {
-
+                        $('.province_map_popup.mapboxgl-popup').hide();
                         console.warn('no province_mouseovered_path data')
                         return false;
                     }
@@ -503,7 +504,7 @@
                     this_app.province_popup.setLngLat(latlng)
                     this_app.province_popup.setHTML('<div class="country_popup small_popup">' +
                         province_mouseovered_path._data.name_prov + '</div><div class="covid_prov_value">' + province_mouseovered_path._data.covid_value + '</div><span style="color:white;font-size:0.8rem;"> total cases</span>');
-
+                    $('.province_map_popup.mapboxgl-popup').show();
 
                 }
 
@@ -559,13 +560,17 @@
 
 
                 })
-                .on('mouseenter', function(d) {
+                .on('mouseover', function(d) {
+                    console.log('mousentering region')
                     if (this_app.provinces == false) {
                         //return false
+
                         $('.map_popup_control_container.mapboxgl-ctrl').show();
                         $('.map_legend_control_container.mapboxgl-ctrl').hide();
 
-                        $('.mapboxgl-popup').show();
+
+                        $('.province_map_popup.mapboxgl-popup').hide();
+                        //$('.mapboxgl-popup').show();
 
                         region_mouseovered_path._data = d.properties;
                         region_mouseovered_path.code = d.properties.code_reg;
@@ -601,8 +606,12 @@
                     }
                 })
                 .on('mouseleave', function(d) {
-                    if (this_app.provinces == true)
-                        return false
+                    if (this_app.provinces == true) {
+                        province_mouseovered_path = {}
+                        return false;
+                    }
+
+                    region_mouseovered_path = {};
 
                     $('.map_popup_control_container').empty();
 
@@ -643,9 +652,13 @@
             app.update = function() {
                 console.warn('updateing geom')
                     //featureElement.attr("d", path)
+                region_mouseovered_path = {};
                 region_mouseovered_path.code = null;
                 if (this_app.provinces == false) {
+                    province_mouseovered_path = {}
                     console.log('prov false')
+                    console.log(path)
+                    featureElement.raise();
                     featureElement.attr("d", path)
                         //.attr("opacity", 1);
                         //.attr('opacity', 1)
@@ -654,8 +667,11 @@
                 //alert(provinceElement.size())
                 if (this_app.provinces == true) {
                     provinceElement = svg.selectAll("path.province")
+                    provinceElement.raise();
                     provinceElement.attr("d", path);
-                    featureElement.attr("opacity", 0);
+
+                    province_mouseovered_path = {};
+                    // featureElement.attr("opacity", 0);
                     //   alert(app_state.first_update)
                     if (app_state.first_update == true) {
                         svg.selectAll("path.province")
@@ -915,6 +931,8 @@
         }
         this_app.update_geom_by_model_rank = function() {
 
+            app_state.first_time_prov = false;
+
             $('#lollipop_wrapper').hide();
             app_state.initial_state = false;
             this_app.provinces = false;
@@ -1000,7 +1018,7 @@
                     var code_reg = $(this).attr('code_reg');
                     var t = '#map path.region.code_' + code_reg;
                     d3.select(t)
-                        .dispatch('mouseenter');
+                        .dispatch('mouseover');
 
                     populate_map_popup_control_container(code_reg)
                         // if ($(e.target).hasClass('i_highlight')) {
@@ -1403,7 +1421,7 @@
                 .attr('opacity', 0)
                 .attr('stroke-width', 0.4)
                 .attr('stroke', "#ffff")
-                .on('mouseenter', function(d) {
+                .on('mouseover', function(d) {
                     if (this_app.provinces == true) {
                         //return false                       
                         $('.mapboxgl-popup').show();
@@ -1441,35 +1459,14 @@
                     if (this_app.provinces == true) {
                         svg.selectAll("path.province").attr('opacity', .8)
                             .attr('stroke-width', .4)
+
+                        province_mouseovered_path = {}
                         $('.mapboxgl-popup.province_map_popup').hide();
                     } else {
                         $('.mapboxgl-popup.region_map_popup').hide();
                     }
-                    //return false
 
-                    // app.throttle(
-                    // console.warn('mouseout geo path ' + d.properties.code_prov)
-                    // var t = '#map path.province.code_' + d.properties.code_prov;
-
-
-                    // if (app_state.initial_state == true) {
-                    //     d3.select(t)
-                    //         // .transition().delay(100)
-                    //         //.attr('fill', app.mouseover_prev_color)
-                    //         //from initial_no_fill_country_style
-                    //         .attr('fill', 'black')
-                    //         //.attr('opacity', app.mouseover_prev_opacity)
-                    //         .attr('opacity', 0.4);
-                    // } else {
-                    //     d3.select(t)
-                    //         //  .transition().delay(100)
-                    //         .attr('fill', app.mouseover_prev_color)
-                    //         //.attr('opacity', app.mouseover_prev_opacity)
-                    //         .attr('opacity', app.mouseover_prev_opacity);
-
-                    // }
-
-                    $('.mapboxgl-popup').hide();
+                    // $('.mapboxgl-popup').hide();
                 });
 
 
